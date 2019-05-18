@@ -1,0 +1,15 @@
+[package]
+name = "orkhon"
+version = "0.1.0"
+authors = ["Mahmut Bulut <vertexclique@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+futures = "0.1.25"
+env_logger = "0.5"
+bytes = "0.4"
+lifeguard = "0.6.0"
+
+# Backend dependencies
+pyo3 = "0.7.0-alpha.1"
+tract = "0.3.1"
