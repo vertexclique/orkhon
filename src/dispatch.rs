@@ -9,8 +9,9 @@ use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct PooledModel {
-    file: PathBuf,
-    requester_hook: String,
+    pub name: String,
+    pub file: PathBuf,
+    pub requester_hook: String,
     pool: Option<Pool<Model>>
 }
 

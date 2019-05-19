@@ -5,7 +5,8 @@ use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct TFModel {
-    file: PathBuf,
+    pub name: String,
+    pub file: PathBuf,
 }
 
 impl TFModel {
