@@ -1,10 +1,12 @@
-use crate::config::OrkhonConfig;
-use crate::dispatch::DispatchPool;
+use crate::config::{OrkhonConfig};
+use crate::dispatch::PooledModel;
+use crate::service::Service;
+use crate::tensorflow::TFModel;
 
 #[derive(Default)]
 pub struct Orkhon {
     config: OrkhonConfig,
-    dpool: DispatchPool
+    services: Vec<Box<dyn Service>>,
 }
 
 impl Orkhon {
@@ -14,9 +16,16 @@ impl Orkhon {
 
     pub fn config(mut self, config: OrkhonConfig) -> Self {
         self.config = config;
-        self.dpool = DispatchPool::new(&config);
         self
     }
 
+    pub fn tensorflow(mut self, model: TFModel) -> Self {
+        self.services.push(Box::new(model));
+        self
+    }
 
+    pub fn pymodel(mut self, model: PooledModel) -> Self {
+        self.services.push(Box::new(model));
+        self
+    }
 }

@@ -1,4 +1,3 @@
-
 #[derive(Default, Clone, Copy)]
 pub struct PoolConfig {
     pub(crate) pool_size: usize

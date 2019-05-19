@@ -19,3 +19,6 @@ bcs
 
 # Intellij stuff
 .idea/
+
+# Don't upload pb files
+*.pb

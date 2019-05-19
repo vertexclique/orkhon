@@ -1,10 +1,16 @@
 use std::fs::File;
 use std::path::PathBuf;
-use lifeguard::Recycleable;
+use lifeguard::{Recycleable, Pool};
+use crate::service::Service;
+use crate::reqrep::{OResponse, ORequest};
+use std::fmt::{Debug, Formatter, Error};
+use pyo3::{GILGuard, Python};
 
-#[derive(Default, Debug)]
+//requester: Box<dyn Process>
+
+#[derive(Default)]
 pub struct Model {
-    file: PathBuf
+    gil: Option<GILGuard>,
 }
 
 impl Model {
@@ -15,10 +21,10 @@ impl Model {
 
 impl Recycleable for Model {
     fn new() -> Self {
-        Model::new()
+        let mut model = Model::new();
+        model.gil = Some(Python::acquire_gil());
+        model
     }
 
-    fn reset(&mut self) {
-        ()
-    }
+    fn reset(&mut self) {}
 }
