@@ -7,7 +7,8 @@ use crate::tensorflow::TFModel;
 use crate::api::OrkhonAPI;
 use crate::reqrep::{ORequest, OResponse};
 use crate::errors::*;
-use core::borrow::BorrowMut;
+
+use log::*;
 
 #[derive(Default)]
 pub struct Orkhon {
@@ -46,7 +47,8 @@ impl OrkhonAPI for Orkhon {
     }
 
     fn build(mut self) -> Self {
-        for model_service in self.services.values_mut() {
+        for (model_name, model_service) in &mut self.services {
+            info!("Loading model :: {}", model_name);
             model_service.load();
         }
 

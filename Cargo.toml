@@ -6,7 +6,8 @@ edition = "2018"
 
 [dependencies]
 futures = "0.1.25"
-env_logger = "0.5"
+log = "0.4.6"
+env_logger = "0.6.1"
 bytes = "0.4"
 lifeguard = "0.6.0"
 error-chain = "0.12.1"
