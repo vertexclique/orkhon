@@ -27,9 +27,10 @@ mod tests {
     fn load_configured_tf_model() {
         Orkhon::new()
             .config(OrkhonConfig::new())
-            .tensorflow(TFModel {
-                name: "mobilenet",
-                file: PathBuf::from("mobilenet_v2_1.4_224_frozen.pb")
-            });
+            .tensorflow(
+                TFModel::new()
+                    .with_name("mobilenet")
+                    .with_model_file(PathBuf::from("mobilenet_v2_1.4_224_frozen.pb"))
+            );
     }
 }

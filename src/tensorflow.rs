@@ -20,6 +20,16 @@ impl<'a> TFModel<'a> {
             ..Default::default()
         }
     }
+
+    pub fn with_name(mut self, name: &'a str) -> Self {
+        self.name = name;
+        self
+    }
+
+    pub fn with_model_file(mut self, model_file: PathBuf) -> Self {
+        self.file = model_file;
+        self
+    }
 }
 
 impl<'a> Service for TFModel<'a> {
