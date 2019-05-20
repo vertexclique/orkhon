@@ -1,7 +1,4 @@
-use std::fs::File;
-use std::path::PathBuf;
-use lifeguard::{Recycleable, Pool};
-use crate::service::Service;
+use lifeguard::{Recycleable};
 use crate::reqrep::{OResponse, ORequest};
 use std::fmt::{Debug, Formatter, Error};
 use pyo3::{GILGuard, Python};

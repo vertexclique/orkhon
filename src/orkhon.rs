@@ -1,8 +1,12 @@
+use std::collections::HashMap;
+
 use crate::config::{OrkhonConfig};
-use crate::dispatch::PooledModel;
+use crate::pooled::PooledModel;
 use crate::service::Service;
 use crate::tensorflow::TFModel;
-use std::collections::HashMap;
+use crate::api::OrkhonAPI;
+use crate::reqrep::{ORequest, OResponse};
+use crate::errors::*;
 
 #[derive(Default)]
 pub struct Orkhon {
@@ -20,13 +24,31 @@ impl Orkhon {
         self
     }
 
-    pub fn tensorflow(mut self, model: TFModel) -> Self {
+    pub fn tensorflow(mut self, model: TFModel<'static>) -> Self {
         self.services.insert(model.name.to_owned(), Box::new(model));
         self
     }
 
-    pub fn pymodel(mut self, model: PooledModel) -> Self {
+    pub fn pymodel(mut self, model: PooledModel<'static>) -> Self {
         self.services.insert(model.name.to_owned(), Box::new(model));
+        self
+    }
+}
+
+impl OrkhonAPI for Orkhon {
+    fn request(&mut self, model_name: &str, request: ORequest) -> Result<OResponse> {
+        if let Some(modelbox) = self.services.get_mut(model_name) {
+            modelbox.process(request)
+        } else {
+            Err(ErrorKind::OrkhonRequestError("Can't return a response.".to_string()).into())
+        }
+    }
+
+    fn build(mut self) -> Self {
+        for (_model_name, model_service) in &mut self.services {
+            model_service.load();
+        }
+
         self
     }
 }

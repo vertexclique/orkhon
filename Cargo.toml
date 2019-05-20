@@ -9,7 +9,9 @@ futures = "0.1.25"
 env_logger = "0.5"
 bytes = "0.4"
 lifeguard = "0.6.0"
+error-chain = "0.12.1"
 
 # Backend dependencies
 pyo3 = "0.7.0-alpha.1"
-tract = "0.3.1"
+tract-core = "0.3.3"
+tract-tensorflow = "0.3.3"

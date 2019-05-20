@@ -28,7 +28,7 @@ mod tests {
         Orkhon::new()
             .config(OrkhonConfig::new())
             .tensorflow(TFModel {
-                name: String::from("mobilenet"),
+                name: "mobilenet",
                 file: PathBuf::from("mobilenet_v2_1.4_224_frozen.pb")
             });
     }
