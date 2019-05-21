@@ -10,11 +10,13 @@ use crate::errors::*;
 
 use std::path::PathBuf;
 use std::error::Error;
+use pyo3::Python;
+
 
 #[derive(Default)]
 pub struct PooledModel<'a> {
     pub name: &'a str,
-    pub file: PathBuf,
+    pub module_path: PathBuf,
     pub requester_hook: String,
     pool: Option<Pool<Model>>
 }
@@ -30,11 +32,19 @@ impl<'a> PooledModel<'a> {
             ..Default::default()
         }
     }
+
+//    pub fn dispense_gil(mut self) -> Result<Recycled<'static, Model>> {
+//        match self.pool {
+//            Some(modelpool) => Ok(modelpool.new()),
+//            _ => Err(ErrorKind::OrkhonAcquireGILError("Model Pool isn't initialized.".to_string()).into())
+//        }
+//    }
 }
 
 impl<'a> Service for PooledModel<'a> {
     fn load(&mut self) -> Result<()> {
-        unimplemented!()
+
+        Ok(())
     }
 
     fn process(&mut self, request: ORequest) -> Result<OResponse> {

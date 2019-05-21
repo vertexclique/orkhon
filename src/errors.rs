@@ -1,8 +1,13 @@
 error_chain! {
     errors {
-        OrkhonRequestError(t: String) {
+        OrkhonRequestError(ex: String) {
             description("Orkhon Request Error")
-            display("Orkhon Request Error: '{}'", t)
+            display("Orkhon Request Error: {}", ex)
+        }
+
+        OrkhonAcquireGILError(ex: String) {
+            description("Orkhon Acquire GIL Error")
+            display("Error occured during acquiring GIL: {}", ex)
         }
     }
 

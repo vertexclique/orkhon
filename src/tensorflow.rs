@@ -7,6 +7,8 @@ use tract_core::ndarray;
 use tract_core::framework::*;
 use tract_core::prelude::*;
 
+use log::*;
+
 #[derive(Default)]
 pub struct TFModel<'a> {
     pub name: &'a str,

@@ -35,10 +35,8 @@ impl Orkhon {
         self.services.insert(model.name.to_owned(), Box::new(model));
         self
     }
-}
 
-impl OrkhonAPI for Orkhon {
-    fn request(&mut self, model_name: &str, request: ORequest) -> Result<OResponse> {
+    pub fn request(mut self, model_name: &str, request: ORequest) -> Result<OResponse> {
         if let Some(modelbox) = self.services.get_mut(model_name) {
             modelbox.process(request)
         } else {
@@ -46,10 +44,11 @@ impl OrkhonAPI for Orkhon {
         }
     }
 
-    fn build(mut self) -> Self {
+    pub fn build(mut self) -> Self {
+        warn!("Building model matrix.");
         for (model_name, model_service) in &mut self.services {
-            info!("Loading model :: {}", model_name);
-            model_service.load();
+            warn!("Loading model :: {}", model_name);
+            model_service.load().unwrap();
         }
 
         self
