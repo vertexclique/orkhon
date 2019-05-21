@@ -9,6 +9,15 @@ error_chain! {
             description("Orkhon Acquire GIL Error")
             display("Error occured during acquiring GIL: {}", ex)
         }
+
+        OrkhonPyModuleError(ex: String) {
+            description("Orkhon Python Module Error")
+            display("Python Module Error: {}", ex)
+        }
+
+        OrkhonOsStringCnvError {
+            description("Os string conversion error. Path is not UTF-8.")
+        }
     }
 
     links {

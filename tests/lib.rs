@@ -6,6 +6,7 @@ mod tests {
     use std::path::PathBuf;
     use std::{env, fs};
     use log::*;
+    use orkhon::pooled::PooledModel;
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -29,7 +30,9 @@ mod tests {
         init();
         Orkhon::new()
             .config(OrkhonConfig::new())
-            .tensorflow(TFModel::new());
+            .tensorflow("mobilenet",
+                        PathBuf::from("tests/protobuf/mobilenet_v2_1.4_224_frozen.pb")
+            );
     }
 
     #[test]
@@ -37,10 +40,8 @@ mod tests {
         init();
         Orkhon::new()
             .config(OrkhonConfig::new())
-            .tensorflow(
-                TFModel::new()
-                    .with_name("mobilenet")
-                    .with_model_file(PathBuf::from("mobilenet_v2_1.4_224_frozen.pb"))
+            .tensorflow("mobilenet",
+                        PathBuf::from("tests/protobuf/mobilenet_v2_1.4_224_frozen.pb")
             );
     }
 
@@ -50,12 +51,19 @@ mod tests {
 
         Orkhon::new()
             .config(OrkhonConfig::new())
-            .tensorflow(
-                TFModel::new()
-                    .with_name("mobilenet")
-                    .with_model_file(PathBuf::from(
-                        "tests/protobuf/mobilenet_v2_1.4_224_frozen.pb"))
+            .tensorflow("mobilenet",
+                        PathBuf::from("tests/protobuf/mobilenet_v2_1.4_224_frozen.pb")
             )
+            .build();
+    }
+
+    #[test]
+    fn build_configured_python_model() {
+        init();
+
+        Orkhon::new()
+            .config(OrkhonConfig::new())
+            .pymodel("mobilenet", "tests/pymodels", "prefix")
             .build();
     }
 }
