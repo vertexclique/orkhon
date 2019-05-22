@@ -9,6 +9,7 @@ use crate::reqrep::{ORequest, OResponse};
 use crate::errors::*;
 
 use log::*;
+use std::path::PathBuf;
 
 #[derive(Default)]
 pub struct Orkhon {
@@ -26,13 +27,21 @@ impl Orkhon {
         self
     }
 
-    pub fn tensorflow(mut self, model: TFModel<'static>) -> Self {
-        self.services.insert(model.name.to_owned(), Box::new(model));
+    pub fn tensorflow(mut self, model_name: &'static str, model_file: PathBuf) -> Self {
+        self.services.insert(model_name.to_owned(), Box::new(
+            TFModel::new()
+                .with_name(model_name)
+                .with_model_file(model_file)
+        ));
         self
     }
 
-    pub fn pymodel(mut self, model: PooledModel<'static>) -> Self {
-        self.services.insert(model.name.to_owned(), Box::new(model));
+    pub fn pymodel(mut self, model_name: &'static str, module_path: &'static str, module: &'static str) -> Self {
+        self.services.insert(model_name.to_owned(), Box::new(
+            PooledModel::new(self.config)
+                .with_name(model_name)
+                .with_module_path(PathBuf::from(module))
+        ));
         self
     }
 
@@ -45,7 +54,7 @@ impl Orkhon {
     }
 
     pub fn build(mut self) -> Self {
-        warn!("Building model matrix.");
+        warn!("Building model storage.");
         for (model_name, model_service) in &mut self.services {
             warn!("Loading model :: {}", model_name);
             model_service.load().unwrap();
