@@ -2,7 +2,6 @@ import sys
 import time
 import os
 
-
 def data(k):
     while True:
         print(k)

@@ -15,6 +15,11 @@ error_chain! {
             display("Python Module Error: {}", ex)
         }
 
+        OrkhonPyCallError(ex: String) {
+            description("Orkhon Python Callee Error")
+            display("Python Callee Error: {}", ex)
+        }
+
         OrkhonOsStringCnvError {
             description("Os string conversion error. Path is not UTF-8.")
         }
@@ -22,9 +27,11 @@ error_chain! {
 
     links {
         OrkhonTractError(tract_core::errors::TractError, tract_core::errors::TractErrorKind) #[cfg(unix)];
+//        OrkhonPythonError(pyo3::err::PyErr) #[cfg(unix)];
     }
 
     foreign_links {
+//        OrkhonPyError(pyo3::err::PyErr);
         Fmt(::std::fmt::Error);
         Io(::std::io::Error) #[cfg(unix)];
     }
