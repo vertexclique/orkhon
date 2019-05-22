@@ -5,14 +5,17 @@ authors = ["Mahmut Bulut <vertexclique@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-futures = "0.1.25"
 log = "0.4.6"
 env_logger = "0.6.1"
 bytes = "0.4"
-lifeguard = "0.6.0"
 error-chain = "0.12.1"
 
 # Backend dependencies
 pyo3 = "0.7.0-alpha.1"
 tract-core = "0.3.3"
 tract-tensorflow = "0.3.3"
+
+# hahahahahahha, hahah, hah, (ノಠ益ಠ)ノ彡┻━┻
+futures-preview = "0.3.0-alpha.16"
+runtime = "0.3.0-alpha.4"
+runtime-tokio = "0.3.0-alpha.3"

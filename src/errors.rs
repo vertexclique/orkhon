@@ -27,12 +27,7 @@ error_chain! {
 
     links {
         OrkhonTractError(tract_core::errors::TractError, tract_core::errors::TractErrorKind) #[cfg(unix)];
-//        OrkhonPythonError(pyo3::err::PyErr) #[cfg(unix)];
     }
 
-    foreign_links {
-//        OrkhonPyError(pyo3::err::PyErr);
-        Fmt(::std::fmt::Error);
-        Io(::std::io::Error) #[cfg(unix)];
-    }
+    foreign_links {}
 }

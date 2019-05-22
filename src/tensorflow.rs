@@ -1,4 +1,4 @@
-use crate::service::Service;
+use crate::service::{Service, AsyncService};
 use crate::reqrep::{OResponse, ORequest};
 use crate::errors::*;
 use std::path::PathBuf;
@@ -8,6 +8,11 @@ use tract_core::framework::*;
 use tract_core::prelude::*;
 
 use log::*;
+use std::thread;
+
+use futures::channel::oneshot;
+use std::future::Future;
+use futures::prelude::future::FutureObj;
 
 #[derive(Default)]
 pub struct TFModel<'a> {
@@ -42,5 +47,27 @@ impl<'a> Service for TFModel<'a> {
 
     fn process(&mut self, request: ORequest) -> Result<OResponse> {
         unimplemented!()
+    }
+}
+
+impl<'a> AsyncService for TFModel<'a> {
+    type FutType = FutureObj<'static, Result<OResponse>>;
+
+    fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+        FutureObj::new(Box::new(
+            async move {
+                // Do async things
+                // You might get a lifetime issue here if trying to access auth,
+                // since it's borrowed.
+                let (sender, receiver) = oneshot::channel();
+                let _ = thread::spawn(move || {
+                    let _ = sender.send(
+                        Ok(OResponse::new())
+                    );
+                });
+
+                receiver.await.unwrap()
+            }
+        ))
     }
 }

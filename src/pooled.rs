@@ -1,5 +1,5 @@
 use crate::config::OrkhonConfig;
-use crate::service::Service;
+use crate::service::{Service, AsyncService};
 use crate::reqrep::{ORequest, OResponse};
 use crate::errors::*;
 
@@ -9,6 +9,12 @@ use std::error::Error;
 use pyo3::prelude::*;
 use pyo3::types::*;
 use log::*;
+
+use std::thread;
+
+use futures::channel::oneshot;
+use std::future::Future;
+use futures::prelude::future::FutureObj;
 
 #[derive(Default)]
 pub struct PooledModel {
@@ -84,5 +90,27 @@ impl Service for PooledModel {
         });
 
         Ok(OResponse::new())
+    }
+}
+
+impl AsyncService for PooledModel {
+    type FutType = FutureObj<'static, Result<OResponse>>;
+
+    fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+        FutureObj::new(Box::new(
+            async move {
+                // Do async things
+                // You might get a lifetime issue here if trying to access auth,
+                // since it's borrowed.
+                let (sender, receiver) = oneshot::channel();
+                let _ = thread::spawn(move || {
+                    let _ = sender.send(
+                        Ok(OResponse::new())
+                    );
+                });
+
+                receiver.await.unwrap()
+            }
+        ))
     }
 }

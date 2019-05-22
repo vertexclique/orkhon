@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::config::{OrkhonConfig};
 use crate::pooled::PooledModel;
-use crate::service::Service;
+use crate::service::{Service, AsyncService};
 use crate::tensorflow::TFModel;
 use crate::api::OrkhonAPI;
 use crate::reqrep::{ORequest, OResponse};
