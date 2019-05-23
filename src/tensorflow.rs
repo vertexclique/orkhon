@@ -14,7 +14,7 @@ use futures::channel::oneshot;
 use std::future::Future;
 use futures::prelude::future::FutureObj;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct TFModel<'a> {
     pub name: &'a str,
     pub file: PathBuf,

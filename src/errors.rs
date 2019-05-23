@@ -1,5 +1,10 @@
 error_chain! {
     errors {
+        OrkhonModelNotFoundError(ex: String) {
+            description("Orkhon Model Not Found Error")
+            display("Orkhon Model Not Found Error: {}", ex)
+        }
+
         OrkhonRequestError(ex: String) {
             description("Orkhon Request Error")
             display("Orkhon Request Error: {}", ex)

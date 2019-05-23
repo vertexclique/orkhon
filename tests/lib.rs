@@ -1,3 +1,5 @@
+#![feature(async_await)]
+
 #[cfg(test)]
 mod tests {
     use orkhon::orkhon::Orkhon;
@@ -7,6 +9,7 @@ mod tests {
     use std::{env, fs};
     use log::*;
     use orkhon::pooled::PooledModel;
+    use orkhon::reqrep::ORequest;
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();

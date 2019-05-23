@@ -4,7 +4,7 @@ use crate::reqrep::{ORequest, OResponse};
 use crate::errors::*;
 use std::future::Future;
 
-pub(crate) trait AsyncService: Service {
+pub(crate) trait AsyncService {
     type FutType: Future<Output = Result<OResponse>>;
 
     fn async_process(&mut self, request: ORequest) -> Self::FutType;

@@ -16,7 +16,7 @@ use futures::channel::oneshot;
 use std::future::Future;
 use futures::prelude::future::FutureObj;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct PooledModel {
     pub name: &'static str,
     pub module_path: PathBuf,
@@ -57,7 +57,8 @@ impl PooledModel {
 impl Service for PooledModel {
     fn load(&mut self) -> Result<()> {
         if !self.module_path.exists() {
-            return Err(ErrorKind::OrkhonPyModuleError("Module path doesn't exist".to_owned()).into())
+            let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
+            return Err(ErrorKind::OrkhonPyModuleError(mp).into())
         }
 
         Ok(())
