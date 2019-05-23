@@ -98,15 +98,19 @@ impl AsyncService for PooledModel {
     type FutType = FutureObj<'static, Result<OResponse>>;
 
     fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+        let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
                 // Do async things
                 // You might get a lifetime issue here if trying to access auth,
                 // since it's borrowed.
                 let (sender, receiver) = oneshot::channel();
+
                 let _ = thread::spawn(move || {
+                    let resp = klone.process(request).unwrap();
+
                     let _ = sender.send(
-                        Ok(OResponse::new())
+                        Ok(resp)
                     );
                 });
 

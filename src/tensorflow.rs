@@ -15,20 +15,20 @@ use std::future::Future;
 use futures::prelude::future::FutureObj;
 
 #[derive(Default, Clone)]
-pub struct TFModel<'a> {
-    pub name: &'a str,
+pub struct TFModel {
+    pub name: &'static str,
     pub file: PathBuf,
     model: Model<TensorFact>
 }
 
-impl<'a> TFModel<'a> {
+impl TFModel {
     pub fn new() -> Self {
         Self {
             ..Default::default()
         }
     }
 
-    pub fn with_name(mut self, name: &'a str) -> Self {
+    pub fn with_name(mut self, name: &'static str) -> Self {
         self.name = name;
         self
     }
@@ -39,7 +39,7 @@ impl<'a> TFModel<'a> {
     }
 }
 
-impl<'a> Service for TFModel<'a> {
+impl Service for TFModel {
     fn load(&mut self) -> Result<()> {
         self.model = tract_tensorflow::tensorflow().model_for_path(self.file.as_path())?;
         Ok(())
@@ -50,10 +50,11 @@ impl<'a> Service for TFModel<'a> {
     }
 }
 
-impl<'a> AsyncService for TFModel<'a> {
+impl AsyncService for TFModel {
     type FutType = FutureObj<'static, Result<OResponse>>;
 
     fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+        let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
                 // Do async things
@@ -61,8 +62,10 @@ impl<'a> AsyncService for TFModel<'a> {
                 // since it's borrowed.
                 let (sender, receiver) = oneshot::channel();
                 let _ = thread::spawn(move || {
+                    let resp = klone.process(request).unwrap();
+
                     let _ = sender.send(
-                        Ok(OResponse::new())
+                        Ok(resp)
                     );
                 });
 
