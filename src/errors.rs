@@ -10,6 +10,11 @@ error_chain! {
             display("Orkhon Request Error: {}", ex)
         }
 
+        OrkhonRequestKindError(ex: String) {
+            description("Orkhon Request Kind Error")
+            display("Orkhon Request Kind Error: {}", ex)
+        }
+
         OrkhonAcquireGILError(ex: String) {
             description("Orkhon Acquire GIL Error")
             display("Error occured during acquiring GIL: {}", ex)

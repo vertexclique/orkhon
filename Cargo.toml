@@ -17,5 +17,8 @@ tract-tensorflow = "0.3.3"
 
 # hahahahahahha, hahah, hah, (ノಠ益ಠ)ノ彡┻━┻
 futures-preview = "0.3.0-alpha.16"
+
+[dev-dependencies]
 runtime = "0.3.0-alpha.4"
 runtime-tokio = "0.3.0-alpha.3"
+static_assertions = "0.3.2"

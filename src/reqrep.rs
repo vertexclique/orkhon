@@ -1,20 +1,49 @@
-
-#[derive(Default)]
-pub struct ORequest {
-
+#[derive(Debug, PartialEq, PartialOrd)]
+pub enum ORequest
+{
+    ForPyModel(PyModelRequest),
+    ForTFModel(TFRequest),
 }
 
-impl ORequest {
+#[derive(Debug, PartialEq, PartialOrd)]
+pub enum OResponse
+{
+    ForPyModel(PyModelResponse),
+    ForTFModel(TFResponse),
+}
+
+pub(crate) trait ORequestBase<T> {}
+pub(crate) trait OResponseBase<T> {}
+
+impl<T> ORequestBase<T> for T {}
+impl<T> OResponseBase<T> for T {}
+
+#[derive(Default, Debug, PartialEq, PartialOrd)]
+pub struct PyModelRequest {}
+
+impl PyModelRequest {
     pub fn new() -> Self {
-        ORequest { ..Default::default() }
+        PyModelRequest { ..Default::default() }
     }
 }
 
-#[derive(Default)]
-pub struct OResponse {}
+#[derive(Default, Debug, PartialEq, PartialOrd)]
+pub struct PyModelResponse {}
 
-impl OResponse {
-    pub fn new() -> Self {
-        OResponse { ..Default::default() }
-    }
+impl PyModelResponse {
+    pub fn new() -> Self { PyModelResponse { ..Default::default() } }
+}
+
+#[derive(Default, Debug, PartialEq, PartialOrd)]
+pub struct TFRequest {}
+
+impl TFRequest {
+    pub fn new() ->  Self { TFRequest { .. Default::default()} }
+}
+
+#[derive(Default, Debug, PartialEq, PartialOrd)]
+pub struct TFResponse {}
+
+impl TFResponse {
+    pub fn new() ->  Self { TFResponse  { .. Default::default()} }
 }

@@ -1,5 +1,8 @@
 #![feature(async_await)]
 
+#[macro_use]
+extern crate static_assertions;
+
 use orkhon::orkhon::Orkhon;
 use orkhon::config::OrkhonConfig;
 use orkhon::tensorflow::TFModel;
@@ -7,12 +10,12 @@ use std::path::PathBuf;
 use std::{env, fs};
 use log::*;
 use orkhon::pooled::PooledModel;
-use orkhon::reqrep::ORequest;
+use orkhon::reqrep::{ORequest, TFRequest, PyModelRequest, OResponse, TFResponse};
 use tract_core::internal::PhantomData;
-
+use orkhon::errors::*;
 
 #[runtime::test(runtime_tokio::Tokio)]
-async fn request_async_tf_model() {
+async fn async_request_for_tf_model() {
     let _ = env_logger::builder().is_test(true).try_init();
 
     let o = Orkhon::new()
@@ -23,9 +26,8 @@ async fn request_async_tf_model() {
         .build();
 
     let handle =
-        o.request_async("mobilenet", ORequest::new());
+        o.request_async("mobilenet",
+                        ORequest::ForTFModel(TFRequest::new()));
 
-    handle.await;
-
-    assert_eq!(1, 1);
+    handle.await.unwrap();
 }

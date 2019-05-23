@@ -1,6 +1,6 @@
 use crate::config::OrkhonConfig;
 use crate::service::{Service, AsyncService};
-use crate::reqrep::{ORequest, OResponse};
+use crate::reqrep::{ORequest, OResponse, PyModelResponse};
 use crate::errors::*;
 
 use std::path::PathBuf;
@@ -90,7 +90,7 @@ impl Service for PooledModel {
             ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
         });
 
-        Ok(OResponse::new())
+        Ok(OResponse::ForPyModel(PyModelResponse::new()))
     }
 }
 
@@ -101,17 +101,15 @@ impl AsyncService for PooledModel {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
-                // Do async things
-                // You might get a lifetime issue here if trying to access auth,
-                // since it's borrowed.
                 let (sender, receiver) = oneshot::channel();
 
                 let _ = thread::spawn(move || {
-                    let resp = klone.process(request).unwrap();
+                    let resp = match request {
+                        ORequest::ForPyModel(_) => Ok(klone.process(request).unwrap()),
+                        _ => Err(ErrorKind::OrkhonRequestKindError("Orkhon request kind is not for PyModel".to_owned()).into()),
+                    };
 
-                    let _ = sender.send(
-                        Ok(resp)
-                    );
+                    let _ = sender.send(resp);
                 });
 
                 receiver.await.unwrap()

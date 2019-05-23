@@ -14,6 +14,7 @@ use futures::channel::oneshot;
 use std::future::Future;
 use futures::prelude::future::FutureObj;
 
+
 #[derive(Default, Clone)]
 pub struct TFModel {
     pub name: &'static str,
@@ -57,16 +58,15 @@ impl AsyncService for TFModel {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
-                // Do async things
-                // You might get a lifetime issue here if trying to access auth,
-                // since it's borrowed.
                 let (sender, receiver) = oneshot::channel();
                 let _ = thread::spawn(move || {
-                    let resp = klone.process(request).unwrap();
+                    let resp = match request {
+                        ORequest::ForTFModel(_) => Ok(klone.process(request).unwrap()),
+                        _ =>
+                            Err(ErrorKind::OrkhonRequestKindError("Orkhon request kind is not for TFRequest".to_owned()).into()),
+                    };
 
-                    let _ = sender.send(
-                        Ok(resp)
-                    );
+                    let _ = sender.send(resp);
                 });
 
                 receiver.await.unwrap()
