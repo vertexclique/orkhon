@@ -82,7 +82,11 @@ impl Service for PooledModel {
         warn!("SYSPATH => \n{:?}", syspath);
         let datamod: &PyModule = py.import(self.module).unwrap();
 
-        let args = PyTuple::new(py, &["123"]);
+        let ORequest::ForPyModel(ref req) = request;
+
+        let mut req_args = req.into_py_dict(py);
+
+        let args = PyTuple::new(py, &[req_args]);
         let kwargs = None;
         datamod.call(self.requester_hook, args, kwargs).map_err::<ErrorKind, _>(|e| {
             let err_msg: String = format!("Call failed over {:?}\n\
@@ -94,10 +98,10 @@ impl Service for PooledModel {
     }
 }
 
-impl AsyncService for PooledModel {
-    type FutType = FutureObj<'static, Result<OResponse>>;
+impl<T> AsyncService<T> for PooledModel {
+    type FutType = FutureObj<'static, Result<T>>;
 
-    fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+    fn async_process<R>(&mut self, request: R) -> FutureObj<'static, Result<T>> {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {

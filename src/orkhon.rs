@@ -59,7 +59,7 @@ impl Orkhon {
         self
     }
 
-    pub fn request(mut self, model_name: &str, request: ORequest) -> Result<OResponse> {
+    pub fn request<R, T>(mut self, model_name: &str, request: R) -> Result<T> {
         if let Some(modelbox) = self.services.get_mut(model_name) {
             modelbox.process(request)
         } else {
@@ -67,7 +67,7 @@ impl Orkhon {
         }
     }
 
-    pub async fn request_async(mut self, model_name: &str, request: ORequest) -> Result<OResponse> {
+    pub async fn request_async<R, T>(mut self, model_name: &str, request: R) -> Result<T> {
         if let Some(modelbox) = self.async_services.get_mut(model_name) {
             modelbox.async_process(request).await
         } else {
