@@ -92,20 +92,19 @@ impl Orkhon {
         }
     }
 
-//    pub async fn tensorflow_request_async<K, R: 'static, T: 'static>(
-//        mut self, model_name: &str,
-//        request: ORequest<R>) -> Result<OResponse<T>>
-//        where
-//            K: AsyncService<R, T>,
-//            R: std::marker::Send,
-//            T: std::marker::Send,
-//            ORequest<R>: Clone {
-//        if let Some(modelbox) = self.tf_services.get_mut(model_name) {
-//            modelbox.async_process(request).await
-//        } else {
-//            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
-//        }
-//    }
+    pub async fn tensorflow_request_async<R: 'static, T: 'static>(
+        mut self, model_name: &str,
+        request: ORequest<R>) -> Result<OResponse<T>>
+        where
+            R: std::marker::Send,
+            T: std::marker::Send,
+            ORequest<R>: Clone {
+        if let Some(modelbox) = self.tf_services.get_mut(model_name) {
+            modelbox.async_process(request).await
+        } else {
+            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
+        }
+    }
 
     pub fn build(mut self) -> Self {
         warn!("Building model storage.");
