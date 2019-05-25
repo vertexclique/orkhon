@@ -43,11 +43,16 @@ impl Orkhon {
         self
     }
 
-    pub fn pymodel(mut self, model_name: &'static str, module_path: &'static str, module: &'static str) -> Self {
+    pub fn pymodel(mut self,
+                   model_name: &'static str,
+                   module_path: &'static str,
+                   module: &'static str,
+                   requester_hook: &'static str) -> Self {
         let model_spec = PooledModel::new(self.config)
             .with_name(model_name)
             .with_module_path(PathBuf::from(module_path))
-            .with_module(module);
+            .with_module(module)
+            .with_requester_hook(requester_hook);
 
         self.py_services.insert(model_name.to_owned(), model_spec);
 

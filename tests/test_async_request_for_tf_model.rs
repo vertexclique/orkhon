@@ -20,23 +20,27 @@ async fn async_request_for_tf_model() {
 
     let o = Orkhon::new()
         .config(OrkhonConfig::new())
-        .pymodel("model_test",
-                 "tests/pymodels/model_test",
-                 "model_hook"
+        .pymodel("model_which_will_be_tested",
+                 "tests/pymodels",
+                 "model_test",
+            "model_hook"
         )
         .build();
 
-    let mut request_data = HashMap::new();
-    request_data.insert("is", 10);
-    request_data.insert("are", 6);
-    request_data.insert("you", 5);
+    let mut request_args = HashMap::new();
+    request_args.insert("is", 10);
+    request_args.insert("are", 6);
+    request_args.insert("you", 5);
+
+    let mut request_kwargs = HashMap::<&str, &str>::new();
 
     let handle =
         o.pymodel_request_async(
-            "model_test",
+            "model_which_will_be_tested",
             ORequest::with_body(
                 PyModelRequest::new()
-                    .with_args(request_data)
+                    .with_args(request_args)
+                    .with_kwargs(request_kwargs)
             )
         );
 

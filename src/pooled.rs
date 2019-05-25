@@ -82,14 +82,15 @@ impl PooledModel {
 
         let kwargs = request.body.kwargs.into_py_dict(py);
 
-        let response = datamod.call(self.requester_hook, args, Some(kwargs)).map_err::<ErrorKind, _>(|e| {
+        datamod.call(self.requester_hook, args, Some(kwargs)).map_err(|e| {
             let err_msg: String = format!("Call failed over {:?}\n\
-            \twith args {:?}\n\twith kwargs {:?}", self.requester_hook, "", "");
+            \twith traceback {:?}", self.requester_hook, e);
             ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
-        });
-
-        Ok(OResponse::<PyObject> {
-            body: response.unwrap().to_object(py)
+        })
+        .map(|resp| {
+            OResponse::<PyObject> {
+                body: resp.to_object(py)
+            }
         })
     }
 }
