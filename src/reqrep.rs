@@ -1,15 +1,22 @@
-#[derive(Debug, PartialEq, PartialOrd)]
-pub enum ORequest
-{
-    ForPyModel(PyModelRequest),
-    ForTFModel(TFRequest),
+use tract_core::internal::HashMap;
+
+pub enum Types {
+    PyModel,
+    TFModel
 }
 
 #[derive(Debug, PartialEq, PartialOrd)]
-pub enum OResponse
+pub struct ORequest<T>
 {
-    ForPyModel(PyModelResponse),
-    ForTFModel(TFResponse),
+    pub body: T,
+    _private: ()
+}
+
+#[derive(Debug, PartialEq, PartialOrd)]
+pub struct OResponse<T>
+{
+    pub body: T,
+    _private: ()
 }
 
 pub(crate) trait ORequestBase<T> {}
@@ -19,11 +26,18 @@ impl<T> ORequestBase<T> for T {}
 impl<T> OResponseBase<T> for T {}
 
 #[derive(Default, Debug, PartialEq, PartialOrd)]
-pub struct PyModelRequest {}
+pub struct PyModelRequest<K, V> {
+    args: HashMap<K, V>
+}
 
-impl PyModelRequest {
+impl<K, V> PyModelRequest<K, V> {
     pub fn new() -> Self {
         PyModelRequest { ..Default::default() }
+    }
+
+    pub fn with_args(mut self, args: HashMap<K, V>) -> Self {
+        self.args = args;
+        self
     }
 }
 

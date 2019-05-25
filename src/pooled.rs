@@ -1,6 +1,6 @@
 use crate::config::OrkhonConfig;
 use crate::service::{Service, AsyncService};
-use crate::reqrep::{ORequest, OResponse, PyModelResponse};
+use crate::reqrep::{ORequest, OResponse, PyModelResponse, PyModelRequest};
 use crate::errors::*;
 
 use std::path::PathBuf;
@@ -54,7 +54,7 @@ impl PooledModel {
     }
 }
 
-impl Service for PooledModel {
+impl<R, T> Service<R, T> for PooledModel {
     fn load(&mut self) -> Result<()> {
         if !self.module_path.exists() {
             let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
@@ -64,7 +64,7 @@ impl Service for PooledModel {
         Ok(())
     }
 
-    fn process(&mut self, request: ORequest) -> Result<OResponse> {
+    fn process(&mut self, request: ORequest<R>) -> Result<OResponse<T>> {
         let gilblock = Python::acquire_gil();
         let py = gilblock.python();
 
@@ -94,20 +94,22 @@ impl Service for PooledModel {
     }
 }
 
-impl AsyncService for PooledModel {
-    type FutType = FutureObj<'static, Result<OResponse>>;
+impl<R: 'static, T: 'static> AsyncService<R, T> for PooledModel where
+    R: std::marker::Send,
+    T: std::marker::Send {
+    type FutType = FutureObj<'static, Result<OResponse<T>>>;
 
-    fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+    fn async_process(&mut self, request: ORequest<R>) -> FutureObj<'static, Result<OResponse<T>>>
+        where
+            R: std::marker::Send,
+            T: std::marker::Send {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
                 let (sender, receiver) = oneshot::channel();
 
                 let _ = thread::spawn(move || {
-                    let resp = match request {
-                        ORequest::ForPyModel(_) => Ok(klone.process(request).unwrap()),
-                        _ => Err(ErrorKind::OrkhonRequestKindError("Orkhon request kind is not for PyModel".to_owned()).into()),
-                    };
+                    let resp = klone.process(request);
 
                     let _ = sender.send(resp);
                 });
