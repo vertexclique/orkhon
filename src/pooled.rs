@@ -82,8 +82,7 @@ impl PooledModel {
         });
 
         Ok(OResponse::<PyObject> {
-//            body: *(coerced.unwrap())
-            body: PyDict::new(py).into()
+            body: response.unwrap().to_object(py)
         })
     }
 }
