@@ -14,10 +14,22 @@ pub struct ORequest<T>
     pub body: T
 }
 
+impl<T> ORequest<T> {
+    pub fn with_body(body: T) -> Self {
+        ORequest { body }
+    }
+}
+
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct OResponse<T>
 {
     pub body: T
+}
+
+impl<T> OResponse<T> {
+    pub fn with_body(body: T) -> Self {
+        OResponse { body }
+    }
 }
 
 pub(crate) trait ORequestBase<T> {}
@@ -45,6 +57,11 @@ impl<K, V, T> PyModelRequest<K, V, T>
 
     pub fn with_args(mut self, args: HashMap<K, V>) -> Self {
         self.args = args;
+        self
+    }
+
+    pub fn with_kwargs(mut self, kwargs: HashMap<&'static str, T>) -> Self {
+        self.kwargs = kwargs;
         self
     }
 }
