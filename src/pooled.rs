@@ -10,7 +10,7 @@ use pyo3::prelude::*;
 use pyo3::types::*;
 use log::*;
 
-use std::thread;
+use std::{thread, cmp, hash};
 
 use futures::channel::oneshot;
 use std::future::Future;
@@ -54,8 +54,12 @@ impl PooledModel {
         self
     }
 
-    pub(crate) fn process<R: 'static>(&mut self, request: ORequest<R>) -> Result<OResponse<PyObject>>
-    {
+    pub(crate) fn process<K:'static, V: 'static, T:'static>(
+        &mut self, request: ORequest<PyModelRequest<K, V, T>>) -> Result<OResponse<PyObject>>
+        where
+            K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
+            V: Default + ToPyObject + Send,
+            T: Default + ToPyObject + Send {
         let gilblock = Python::acquire_gil();
         let py = gilblock.python();
 
@@ -73,9 +77,12 @@ impl PooledModel {
         warn!("SYSPATH => \n{:?}", syspath);
         let datamod: &PyModule = py.import(self.module).unwrap();
 
-        let args = PyTuple::new(py, &["123"]);
-        let kwargs = None;
-        let response = datamod.call(self.requester_hook, args, kwargs).map_err::<ErrorKind, _>(|e| {
+        let mut args_data = request.body.args.into_py_dict(py);
+        let mut args = PyTuple::new(py, &[args_data]);
+
+        let kwargs = request.body.kwargs.into_py_dict(py);
+
+        let response = datamod.call(self.requester_hook, args, Some(kwargs)).map_err::<ErrorKind, _>(|e| {
             let err_msg: String = format!("Call failed over {:?}\n\
             \twith args {:?}\n\twith kwargs {:?}", self.requester_hook, "", "");
             ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
@@ -98,12 +105,16 @@ impl Service for PooledModel {
     }
 }
 
-impl<R: 'static> PythonAsyncService<R> for PooledModel
-    where
-        R: Send {
+impl PythonAsyncService for PooledModel {
     type FutType = FutureObj<'static, Result<OResponse<PyObject>>>;
 
-    fn async_process(&mut self, request: ORequest<R>) -> FutureObj<'static, Result<OResponse<PyObject>>> {
+    fn async_process<K: 'static, V: 'static, T: 'static>(
+        &mut self, request: ORequest<PyModelRequest<K, V, T>>)
+        -> FutureObj<'static, Result<OResponse<PyObject>>>
+        where
+            K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
+            V: Default + ToPyObject + Send,
+            T: Default + ToPyObject + Send {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {

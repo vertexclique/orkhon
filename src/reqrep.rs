@@ -31,8 +31,8 @@ pub struct PyModelRequest<K, V, T>
     where K: hash::Hash + cmp::Eq + Default + ToPyObject,
           V: Default + ToPyObject,
           T: Default + ToPyObject {
-    args: HashMap<K, V>,
-    kwargs: HashMap<&'static str, T>
+    pub args: HashMap<K, V>,
+    pub kwargs: HashMap<&'static str, T>
 }
 
 impl<K, V, T> PyModelRequest<K, V, T>

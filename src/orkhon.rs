@@ -61,7 +61,7 @@ impl Orkhon {
               R: Default + ToPyObject + Send,
               T: Default + ToPyObject + Send {
         if let Some(modelbox) = self.py_services.get_mut(model_name) {
-            modelbox.process::<PyModelRequest<K,R,T>>(request)
+            modelbox.process::<K, R, T>(request)
         } else {
             Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
         }
@@ -84,7 +84,7 @@ impl Orkhon {
         request: ORequest<PyModelRequest<K, R, T>>) -> Result<OResponse<PyObject>>
         where K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
               R: Default + ToPyObject + Send,
-              T: Default + ToPyObject + Send{
+              T: Default + ToPyObject + Send {
         if let Some(modelbox) = self.py_services.get_mut(model_name) {
             modelbox.async_process(request).await
         } else {
