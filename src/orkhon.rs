@@ -4,7 +4,7 @@ use crate::config::{OrkhonConfig};
 use crate::pooled::PooledModel;
 use crate::service::{Service, AsyncService, PythonAsyncService};
 use crate::tensorflow::TFModel;
-use crate::reqrep::{ORequest, OResponse, PyModelRequest};
+use crate::reqrep::{ORequest, OResponse, PyModelRequest, TFRequest, TFResponse};
 use crate::service_macros::*;
 use crate::errors::*;
 
@@ -72,11 +72,9 @@ impl Orkhon {
         }
     }
 
-    pub fn tensorflow_request<K, R, T>(
+    pub fn tensorflow_request(
         mut self, model_name: &str,
-        request: ORequest<R>) -> Result<OResponse<T>>
-        where
-            ORequest<R>: Clone {
+        request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
         if let Some(modelbox) = self.tf_services.get_mut(model_name) {
             modelbox.process(request)
         } else {
@@ -97,13 +95,9 @@ impl Orkhon {
         }
     }
 
-    pub async fn tensorflow_request_async<R: 'static, T: 'static>(
+    pub async fn tensorflow_request_async(
         mut self, model_name: &str,
-        request: ORequest<R>) -> Result<OResponse<T>>
-        where
-            R: std::marker::Send,
-            T: std::marker::Send,
-            ORequest<R>: Clone {
+        request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
         if let Some(modelbox) = self.tf_services.get_mut(model_name) {
             modelbox.async_process(request).await
         } else {

@@ -15,7 +15,7 @@ use tract_core::internal::{PhantomData, HashMap};
 use orkhon::errors::*;
 
 #[runtime::test(runtime_tokio::Tokio)]
-async fn async_request_for_tf_model() {
+async fn async_request_for_py_model() {
     let _ = env_logger::builder().is_test(true).try_init();
 
     let o = Orkhon::new()

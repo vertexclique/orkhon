@@ -1,5 +1,5 @@
 use crate::service::{Service, AsyncService};
-use crate::reqrep::{OResponse, ORequest};
+use crate::reqrep::{OResponse, ORequest, TFRequest, TFResponse};
 use crate::errors::*;
 use std::path::PathBuf;
 
@@ -39,8 +39,19 @@ impl TFModel {
         self
     }
 
-    pub(crate) fn process<R, T>(&mut self, request: ORequest<R>) -> Result<OResponse<T>> {
-        unimplemented!()
+    pub(crate) fn process(&mut self, request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
+        let model = self.model.clone().into_optimized()?;
+        let plan = SimplePlan::new(&model)?;
+
+        plan.run(tvec!(request.body.input)).map_err(|e| {
+            let err_msg: String = format!("Call failed\n\
+            \twith traceback {:?}", e);
+            ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
+        }).map(|result| {
+            OResponse::with_body(
+                TFResponse::new().with_output(result)
+            )
+        })
     }
 }
 
@@ -51,15 +62,11 @@ impl Service for TFModel {
     }
 }
 
-impl<R: 'static, T: 'static> AsyncService<R, T> for TFModel where
-    R: std::marker::Send,
-    T: std::marker::Send {
-    type FutType = FutureObj<'static, Result<OResponse<T>>>;
+impl AsyncService for TFModel where {
+    type FutType = FutureObj<'static, Result<OResponse<TFResponse>>>;
 
-    fn async_process(&mut self, request: ORequest<R>) -> FutureObj<'static, Result<OResponse<T>>>
-        where
-            R: std::marker::Send,
-            T: std::marker::Send {
+    fn async_process(&mut self, request: ORequest<TFRequest>)
+        -> FutureObj<'static, Result<OResponse<TFResponse>>> {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {

@@ -2,6 +2,10 @@ use tract_core::internal::HashMap;
 use std::{hash, cmp};
 use pyo3::{ToPyObject, PyTypeInfo};
 use pyo3::types::PyDict;
+use tract_core::tensor::Tensor;
+use std::sync::Arc;
+use smallvec::SmallVec;
+use tract_core::model::TVec;
 
 pub enum Types {
     PyModel,
@@ -75,16 +79,25 @@ impl<K, V, T> PyModelRequest<K, V, T>
 //    pub fn new() -> Self { PyModelResponse { ..Default::default() } }
 //}
 
-#[derive(Default, Debug, PartialEq, PartialOrd)]
-pub struct TFRequest {}
+#[derive(Default, Debug)]
+pub struct TFRequest {
+    pub input: Tensor
+}
 
 impl TFRequest {
     pub fn new() ->  Self { TFRequest { .. Default::default()} }
 }
 
-#[derive(Default, Debug, PartialEq, PartialOrd)]
-pub struct TFResponse {}
+#[derive(Default, Debug)]
+pub struct TFResponse {
+    pub output: SmallVec<[Arc<Tensor>; 4]>
+}
 
 impl TFResponse {
     pub fn new() ->  Self { TFResponse  { .. Default::default()} }
+
+    pub fn with_output(mut self, output: SmallVec<[Arc<Tensor>; 4]>) -> Self {
+        self.output = output;
+        self
+    }
 }

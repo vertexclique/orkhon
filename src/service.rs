@@ -1,17 +1,15 @@
 #![feature(async_await)]
 
-use crate::reqrep::{ORequest, OResponse, PyModelRequest};
+use crate::reqrep::{ORequest, OResponse, PyModelRequest, TFResponse, TFRequest};
 use crate::errors::*;
 use std::future::Future;
 use pyo3::{PyObject, ToPyObject};
 use std::{hash, cmp};
 
-pub(crate) trait AsyncService<R, T> where
-    R: std::marker::Send,
-    T: std::marker::Send {
-    type FutType: Future<Output = Result<OResponse<T>>>;
+pub(crate) trait AsyncService where {
+    type FutType: Future<Output = Result<OResponse<TFResponse>>>;
 
-    fn async_process(&mut self, request: ORequest<R>) -> Self::FutType;
+    fn async_process(&mut self, request: ORequest<TFRequest>) -> Self::FutType;
 }
 
 pub(crate) trait PythonAsyncService {
