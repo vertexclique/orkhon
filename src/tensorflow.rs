@@ -38,6 +38,10 @@ impl TFModel {
         self.file = model_file;
         self
     }
+
+    pub(crate) fn process<R, T>(&mut self, request: ORequest<R>) -> Result<OResponse<T>> {
+        unimplemented!()
+    }
 }
 
 impl Service for TFModel {
@@ -45,26 +49,23 @@ impl Service for TFModel {
         self.model = tract_tensorflow::tensorflow().model_for_path(self.file.as_path())?;
         Ok(())
     }
-
-    fn process(&mut self, request: ORequest) -> Result<OResponse> {
-        unimplemented!()
-    }
 }
 
-impl AsyncService for TFModel {
-    type FutType = FutureObj<'static, Result<OResponse>>;
+impl<R: 'static, T: 'static> AsyncService<R, T> for TFModel where
+    R: std::marker::Send,
+    T: std::marker::Send {
+    type FutType = FutureObj<'static, Result<OResponse<T>>>;
 
-    fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+    fn async_process(&mut self, request: ORequest<R>) -> FutureObj<'static, Result<OResponse<T>>>
+        where
+            R: std::marker::Send,
+            T: std::marker::Send {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
                 let (sender, receiver) = oneshot::channel();
                 let _ = thread::spawn(move || {
-                    let resp = match request {
-                        ORequest::ForTFModel(_) => Ok(klone.process(request).unwrap()),
-                        _ =>
-                            Err(ErrorKind::OrkhonRequestKindError("Orkhon request kind is not for TFRequest".to_owned()).into()),
-                    };
+                    let resp = klone.process(request);
 
                     let _ = sender.send(resp);
                 });

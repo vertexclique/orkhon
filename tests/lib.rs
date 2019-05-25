@@ -66,7 +66,7 @@ mod tests {
 
         Orkhon::new()
             .config(OrkhonConfig::new())
-            .pymodel("mobilenet", "tests/pymodels", "prefix")
+            .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
             .build();
     }
 }

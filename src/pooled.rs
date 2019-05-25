@@ -1,6 +1,6 @@
 use crate::config::OrkhonConfig;
-use crate::service::{Service, AsyncService};
-use crate::reqrep::{ORequest, OResponse, PyModelResponse};
+use crate::service::{Service, AsyncService, PythonAsyncService};
+use crate::reqrep::{ORequest, OResponse, PyModelRequest};
 use crate::errors::*;
 
 use std::path::PathBuf;
@@ -10,11 +10,12 @@ use pyo3::prelude::*;
 use pyo3::types::*;
 use log::*;
 
-use std::thread;
+use std::{thread, cmp, hash};
 
 use futures::channel::oneshot;
 use std::future::Future;
 use futures::prelude::future::FutureObj;
+use pyo3::PyTypeInfo;
 
 #[derive(Default, Clone)]
 pub struct PooledModel {
@@ -52,19 +53,13 @@ impl PooledModel {
         self.requester_hook = requester_hook;
         self
     }
-}
 
-impl Service for PooledModel {
-    fn load(&mut self) -> Result<()> {
-        if !self.module_path.exists() {
-            let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
-            return Err(ErrorKind::OrkhonPyModuleError(mp).into())
-        }
-
-        Ok(())
-    }
-
-    fn process(&mut self, request: ORequest) -> Result<OResponse> {
+    pub(crate) fn process<K:'static, V: 'static, T:'static>(
+        &mut self, request: ORequest<PyModelRequest<K, V, T>>) -> Result<OResponse<PyObject>>
+        where
+            K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
+            V: Default + ToPyObject + Send,
+            T: Default + ToPyObject + Send {
         let gilblock = Python::acquire_gil();
         let py = gilblock.python();
 
@@ -82,32 +77,52 @@ impl Service for PooledModel {
         warn!("SYSPATH => \n{:?}", syspath);
         let datamod: &PyModule = py.import(self.module).unwrap();
 
-        let args = PyTuple::new(py, &["123"]);
-        let kwargs = None;
-        datamod.call(self.requester_hook, args, kwargs).map_err::<ErrorKind, _>(|e| {
-            let err_msg: String = format!("Call failed over {:?}\n\
-            \twith args {:?}\n\twith kwargs {:?}", self.requester_hook, "", "");
-            ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
-        });
+        let mut args_data = request.body.args.into_py_dict(py);
+        let mut args = PyTuple::new(py, &[args_data]);
 
-        Ok(OResponse::ForPyModel(PyModelResponse::new()))
+        let kwargs = request.body.kwargs.into_py_dict(py);
+
+        datamod.call(self.requester_hook, args, Some(kwargs)).map_err(|e| {
+            let err_msg: String = format!("Call failed over {:?}\n\
+            \twith traceback {:?}", self.requester_hook, e);
+            ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
+        })
+        .map(|resp| {
+            OResponse::<PyObject> {
+                body: resp.to_object(py)
+            }
+        })
     }
 }
 
-impl AsyncService for PooledModel {
-    type FutType = FutureObj<'static, Result<OResponse>>;
+impl Service for PooledModel {
+    fn load(&mut self) -> Result<()> {
+        if !self.module_path.exists() {
+            let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
+            return Err(ErrorKind::OrkhonPyModuleError(mp).into())
+        }
 
-    fn async_process(&mut self, request: ORequest) -> FutureObj<'static, Result<OResponse>> {
+        Ok(())
+    }
+}
+
+impl PythonAsyncService for PooledModel {
+    type FutType = FutureObj<'static, Result<OResponse<PyObject>>>;
+
+    fn async_process<K: 'static, V: 'static, T: 'static>(
+        &mut self, request: ORequest<PyModelRequest<K, V, T>>)
+        -> FutureObj<'static, Result<OResponse<PyObject>>>
+        where
+            K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
+            V: Default + ToPyObject + Send,
+            T: Default + ToPyObject + Send {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {
                 let (sender, receiver) = oneshot::channel();
 
                 let _ = thread::spawn(move || {
-                    let resp = match request {
-                        ORequest::ForPyModel(_) => Ok(klone.process(request).unwrap()),
-                        _ => Err(ErrorKind::OrkhonRequestKindError("Orkhon request kind is not for PyModel".to_owned()).into()),
-                    };
+                    let resp = klone.process(request);
 
                     let _ = sender.send(resp);
                 });

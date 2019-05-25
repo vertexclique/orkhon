@@ -7,7 +7,9 @@ pub mod pooled;
 pub mod reqrep;
 pub mod service;
 pub mod tensorflow;
-pub mod api;
+
+#[macro_use]
+pub mod service_macros;
 pub mod errors;
 
 pub mod orkhon;

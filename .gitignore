@@ -21,3 +21,6 @@ bcs
 .idea/
 
 # *.pb
+
+# Don't push pycache
+**/__pycache__/
