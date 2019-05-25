@@ -67,18 +67,17 @@ impl Orkhon {
         }
     }
 
-//    pub fn tensorflow_request<K, R, T>(
-//        mut self, model_name: &str,
-//        request: ORequest<R>) -> Result<OResponse<T>>
-//        where
-//            K: Service,
-//            ORequest<R>: Clone {
-//        if let Some(modelbox) = self.tf_services.get_mut(model_name) {
-//            modelbox.process(request.clone())
-//        } else {
-//            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
-//        }
-//    }
+    pub fn tensorflow_request<K, R, T>(
+        mut self, model_name: &str,
+        request: ORequest<R>) -> Result<OResponse<T>>
+        where
+            ORequest<R>: Clone {
+        if let Some(modelbox) = self.tf_services.get_mut(model_name) {
+            modelbox.process(request)
+        } else {
+            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
+        }
+    }
 
     pub async fn pymodel_request_async<K: 'static + Send, R: 'static + Send, T: 'static + Send>(
         mut self, model_name: &str,
@@ -111,12 +110,12 @@ impl Orkhon {
     pub fn build(mut self) -> Self {
         warn!("Building model storage.");
         for (model_name, model_service) in &mut self.py_services {
-            warn!("Loading model :: {}", model_name);
+            warn!("Loading Python model :: {}", model_name);
             model_service.load().unwrap();
         }
 
         for (model_name, model_service) in &mut self.tf_services {
-            warn!("Loading model :: {}", model_name);
+            warn!("Loading Tensorflow model :: {}", model_name);
             model_service.load().unwrap();
         }
 
