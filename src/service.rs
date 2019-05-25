@@ -3,6 +3,7 @@
 use crate::reqrep::{ORequest, OResponse};
 use crate::errors::*;
 use std::future::Future;
+use pyo3::PyObject;
 
 pub(crate) trait AsyncService<R, T> where
     R: std::marker::Send,
@@ -12,7 +13,14 @@ pub(crate) trait AsyncService<R, T> where
     fn async_process(&mut self, request: ORequest<R>) -> Self::FutType;
 }
 
-pub(crate) trait Service<R, T> {
+pub(crate) trait PythonAsyncService<R>
+    where
+        R: std::marker::Send {
+    type FutType: Future<Output = Result<OResponse<PyObject>>>;
+
+    fn async_process(&mut self, request: ORequest<R>) -> Self::FutType;
+}
+
+pub(crate) trait Service {
     fn load(&mut self) -> Result<()>;
-    fn process(&mut self, request: ORequest<R>) -> Result<OResponse<T>>;
 }

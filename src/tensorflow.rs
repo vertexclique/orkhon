@@ -38,16 +38,16 @@ impl TFModel {
         self.file = model_file;
         self
     }
+
+    pub(crate) fn process<R, T>(&mut self, request: ORequest<R>) -> Result<OResponse<T>> {
+        unimplemented!()
+    }
 }
 
-impl<R, T> Service<R, T> for TFModel {
+impl Service for TFModel {
     fn load(&mut self) -> Result<()> {
         self.model = tract_tensorflow::tensorflow().model_for_path(self.file.as_path())?;
         Ok(())
-    }
-
-    fn process(&mut self, request: ORequest<R>) -> Result<OResponse<T>> {
-        unimplemented!()
     }
 }
 

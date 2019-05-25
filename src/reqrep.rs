@@ -1,22 +1,23 @@
 use tract_core::internal::HashMap;
+use std::{hash, cmp};
+use pyo3::{ToPyObject, PyTypeInfo};
+use pyo3::types::PyDict;
 
 pub enum Types {
     PyModel,
     TFModel
 }
 
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct ORequest<T>
 {
-    pub body: T,
-    _private: ()
+    pub body: T
 }
 
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct OResponse<T>
 {
-    pub body: T,
-    _private: ()
+    pub body: T
 }
 
 pub(crate) trait ORequestBase<T> {}
@@ -25,12 +26,19 @@ pub(crate) trait OResponseBase<T> {}
 impl<T> ORequestBase<T> for T {}
 impl<T> OResponseBase<T> for T {}
 
-#[derive(Default, Debug, PartialEq, PartialOrd)]
-pub struct PyModelRequest<K, V> {
-    args: HashMap<K, V>
+#[derive(Default, Debug, Clone)]
+pub struct PyModelRequest<K, V, T>
+    where K: hash::Hash + cmp::Eq + Default + ToPyObject,
+          V: Default + ToPyObject,
+          T: Default + ToPyObject {
+    args: HashMap<K, V>,
+    kwargs: HashMap<&'static str, T>
 }
 
-impl<K, V> PyModelRequest<K, V> {
+impl<K, V, T> PyModelRequest<K, V, T>
+    where K: hash::Hash + cmp::Eq + Default + ToPyObject,
+          V: Default + ToPyObject,
+          T: Default + ToPyObject {
     pub fn new() -> Self {
         PyModelRequest { ..Default::default() }
     }
@@ -41,12 +49,14 @@ impl<K, V> PyModelRequest<K, V> {
     }
 }
 
-#[derive(Default, Debug, PartialEq, PartialOrd)]
-pub struct PyModelResponse {}
-
-impl PyModelResponse {
-    pub fn new() -> Self { PyModelResponse { ..Default::default() } }
-}
+//#[derive(Default, Debug, Clone)]
+//pub struct PyModelResponse {
+//    response: PyDict,
+//}
+//
+//impl PyModelResponse {
+//    pub fn new() -> Self { PyModelResponse { ..Default::default() } }
+//}
 
 #[derive(Default, Debug, PartialEq, PartialOrd)]
 pub struct TFRequest {}

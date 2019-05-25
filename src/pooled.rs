@@ -1,6 +1,6 @@
 use crate::config::OrkhonConfig;
-use crate::service::{Service, AsyncService};
-use crate::reqrep::{ORequest, OResponse, PyModelResponse, PyModelRequest};
+use crate::service::{Service, AsyncService, PythonAsyncService};
+use crate::reqrep::{ORequest, OResponse, PyModelRequest};
 use crate::errors::*;
 
 use std::path::PathBuf;
@@ -15,6 +15,7 @@ use std::thread;
 use futures::channel::oneshot;
 use std::future::Future;
 use futures::prelude::future::FutureObj;
+use pyo3::PyTypeInfo;
 
 #[derive(Default, Clone)]
 pub struct PooledModel {
@@ -52,19 +53,9 @@ impl PooledModel {
         self.requester_hook = requester_hook;
         self
     }
-}
 
-impl<R, T> Service<R, T> for PooledModel {
-    fn load(&mut self) -> Result<()> {
-        if !self.module_path.exists() {
-            let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
-            return Err(ErrorKind::OrkhonPyModuleError(mp).into())
-        }
-
-        Ok(())
-    }
-
-    fn process(&mut self, request: ORequest<R>) -> Result<OResponse<T>> {
+    pub(crate) fn process<R: 'static>(&mut self, request: ORequest<R>) -> Result<OResponse<PyObject>>
+    {
         let gilblock = Python::acquire_gil();
         let py = gilblock.python();
 
@@ -84,25 +75,36 @@ impl<R, T> Service<R, T> for PooledModel {
 
         let args = PyTuple::new(py, &["123"]);
         let kwargs = None;
-        datamod.call(self.requester_hook, args, kwargs).map_err::<ErrorKind, _>(|e| {
+        let response = datamod.call(self.requester_hook, args, kwargs).map_err::<ErrorKind, _>(|e| {
             let err_msg: String = format!("Call failed over {:?}\n\
             \twith args {:?}\n\twith kwargs {:?}", self.requester_hook, "", "");
             ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
         });
 
-        Ok(OResponse::ForPyModel(PyModelResponse::new()))
+        Ok(OResponse::<PyObject> {
+//            body: *(coerced.unwrap())
+            body: PyDict::new(py).into()
+        })
     }
 }
 
-impl<R: 'static, T: 'static> AsyncService<R, T> for PooledModel where
-    R: std::marker::Send,
-    T: std::marker::Send {
-    type FutType = FutureObj<'static, Result<OResponse<T>>>;
+impl Service for PooledModel {
+    fn load(&mut self) -> Result<()> {
+        if !self.module_path.exists() {
+            let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
+            return Err(ErrorKind::OrkhonPyModuleError(mp).into())
+        }
 
-    fn async_process(&mut self, request: ORequest<R>) -> FutureObj<'static, Result<OResponse<T>>>
-        where
-            R: std::marker::Send,
-            T: std::marker::Send {
+        Ok(())
+    }
+}
+
+impl<R: 'static> PythonAsyncService<R> for PooledModel
+    where
+        R: Send {
+    type FutType = FutureObj<'static, Result<OResponse<PyObject>>>;
+
+    fn async_process(&mut self, request: ORequest<R>) -> FutureObj<'static, Result<OResponse<PyObject>>> {
         let mut klone = self.clone();
         FutureObj::new(Box::new(
             async move {

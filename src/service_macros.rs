@@ -15,7 +15,7 @@ macro_rules! request_sync_for {
 
 #[macro_export]
 macro_rules! request_async_for {
-    ( $( $services:expr, $model_name:expr, $request:expr ),* ) => {
+    ( $( $r:ty, $t:ty, $services:expr, $model_name:expr, $request:expr ),* ) => {
         {
             $(
             if let Some(modelbox) = $services.get_mut($model_name) {
