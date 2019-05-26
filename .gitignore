@@ -24,3 +24,6 @@ bcs
 
 # Don't push pycache
 **/__pycache__/
+
+# Tensorflow model writers output
+graphstore

@@ -10,7 +10,7 @@ use pyo3::prelude::*;
 use pyo3::types::*;
 use log::*;
 
-use std::{thread, cmp, hash};
+use std::{thread, cmp, hash, fs};
 
 use futures::channel::oneshot;
 use std::future::Future;
@@ -60,6 +60,19 @@ impl PooledModel {
             K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
             V: Default + ToPyObject + Send,
             T: Default + ToPyObject + Send {
+//        let module_path = self.module_path.clone().into_os_string().into_string().unwrap();
+        let mut module_path = self.module_path.clone();
+        let syspath_module_path =
+            self.module_path.clone().into_os_string().into_string().unwrap();
+        let module = format!("{}.py", self.module);
+
+        module_path.push(module);
+
+        let module_file =
+            module_path.clone().into_os_string().into_string().unwrap();
+
+        let source = fs::read_to_string(module_file.as_str()).unwrap();
+
         let gilblock = Python::acquire_gil();
         let py = gilblock.python();
 
@@ -70,12 +83,16 @@ impl PooledModel {
             .try_into()
             .unwrap();
 
-        let module_path =
-            self.module_path.clone().into_os_string().into_string().unwrap();
+        syspath.insert(0, syspath_module_path).unwrap();
 
-        syspath.insert(0, module_path).unwrap();
-        warn!("SYSPATH => \n{:?}", syspath);
-        let datamod: &PyModule = py.import(self.module).unwrap();
+        let datamod = PyModule::from_code(py, source.as_str(), self.name, self.name)
+            .map_err::<ErrorKind, _>(|e| {
+                e.print(py);
+                let err_msg: String = format!("Import failed in {}\n\
+                \twith traceback", self.requester_hook);
+                ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
+            }).unwrap();
+        warn!("SYS PATH => \n{:?}", syspath);
 
         let mut args_data = request.body.args.into_py_dict(py);
         let mut args = PyTuple::new(py, &[args_data]);
@@ -83,8 +100,9 @@ impl PooledModel {
         let kwargs = request.body.kwargs.into_py_dict(py);
 
         datamod.call(self.requester_hook, args, Some(kwargs)).map_err(|e| {
+            e.print(py);
             let err_msg: String = format!("Call failed over {:?}\n\
-            \twith traceback {:?}", self.requester_hook, e);
+            \twith traceback", self.requester_hook);
             ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
         })
         .map(|resp| {

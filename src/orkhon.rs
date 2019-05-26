@@ -16,7 +16,7 @@ use pyo3::{PyTypeInfo, ToPyObject, PyObject};
 use pyo3::types::PyDict;
 use std::{cmp, hash};
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Orkhon {
     config: OrkhonConfig,
     py_services: HashMap<String, PooledModel>,

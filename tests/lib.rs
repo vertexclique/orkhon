@@ -69,4 +69,14 @@ mod tests {
             .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
             .build();
     }
+
+    #[test]
+    fn sync_request_python_model() {
+        init();
+
+        let o = Orkhon::new()
+            .config(OrkhonConfig::new())
+            .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
+            .build();
+    }
 }
