@@ -40,6 +40,7 @@ matrix:
 before_install:
   - set -e
   - rustup self update
+  - pip install numpy tensorflow opencv-python
 
 install:
   - sh ci/install.sh
