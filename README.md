@@ -63,6 +63,7 @@ Orkhon is Rust framework for Machine Learning to run/use inference/prediction co
 * Easily embeddable engine for well-known Rust web frameworks.
 * API contract for interacting with Python code.
 * High processing throughput
+* Python Module caching
 
 ## Installation
 
@@ -70,7 +71,7 @@ You can include Orkhon into your project with;
 
 ```toml
 [dependencies]
-orkhon = "0.1.0"
+orkhon = "*"
 ```
 
 ## Dependencies

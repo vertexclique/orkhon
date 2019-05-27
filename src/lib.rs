@@ -19,7 +19,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! orkhon = "0.1.0"
+//! orkhon = "*"
 //! ```
 //!
 //! ## Dependencies
