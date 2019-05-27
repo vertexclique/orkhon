@@ -1,3 +1,5 @@
+//! [![Orkhon](https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/orkhon.png)](https://github.com/vertexclique/orkhon)
+
 #![feature(async_await)]
 #[macro_use]
 extern crate error_chain;
