@@ -1,12 +1,10 @@
-#![feature(async_await)]
-
 use crate::reqrep::{ORequest, OResponse, PyModelRequest, TFResponse, TFRequest};
 use crate::errors::*;
 use std::future::Future;
 use pyo3::{PyObject, ToPyObject};
 use std::{hash, cmp};
 
-pub(crate) trait AsyncService where {
+pub(crate) trait TensorflowAsyncService where {
     type FutType: Future<Output = Result<OResponse<TFResponse>>>;
 
     fn async_process(&mut self, request: ORequest<TFRequest>) -> Self::FutType;

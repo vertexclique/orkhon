@@ -1,8 +1,23 @@
 [package]
 name = "orkhon"
+description = "Machine Learning Inference Framework and Server Runtime"
 version = "0.1.0"
-authors = ["Mahmut Bulut <vertexclique@gmail.com>"]
+authors = [
+    "Mahmut Bulut <vertexclique@gmail.com>",
+    "Berkan Yavrı <yavrib@gmail.com>"
+]
+keywords = ["machine-learning", "framework", "inference", "prediction", "python-runtime"]
+categories = ["science", "asynchronous", "api-bindings"]
+homepage = "https://github.com/vertexclique/orkhon"
+repository = "https://github.com/vertexclique/orkhon"
+documentation = "https://docs.rs/orkhon"
+readme = "README.md"
+license = "MIT"
 edition = "2018"
+
+[badges]
+travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
+maintenance = { status = "actively-developed" }
 
 [dependencies]
 log = "0.4.6"
@@ -23,3 +38,11 @@ futures-preview = "0.3.0-alpha.16"
 runtime = "0.3.0-alpha.4"
 runtime-tokio = "0.3.0-alpha.3"
 static_assertions = "0.3.2"
+
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = false
+debug-assertions = false
+codegen-units = 1

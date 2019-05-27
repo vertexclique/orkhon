@@ -14,8 +14,7 @@ use log::*;
 use orkhon::pooled::PooledModel;
 use orkhon::reqrep::{ORequest, TFRequest, PyModelRequest, OResponse, TFResponse};
 use tract_core::internal::{PhantomData, HashMap};
-use orkhon::errors::*;
-use futures::future::{join_all, ok, err};
+use futures::future::join_all;
 
 #[runtime::bench(runtime_tokio::Tokio)]
 async fn test_async_request_for_tf_loaded_py_model() {
@@ -35,7 +34,7 @@ async fn test_async_request_for_tf_loaded_py_model() {
     request_args.insert("are", 6);
     request_args.insert("you", 5);
 
-    let mut request_kwargs = HashMap::<&str, &str>::new();
+    let request_kwargs = HashMap::<&str, &str>::new();
 
     let req = PyModelRequest::new()
         .with_args(request_args)

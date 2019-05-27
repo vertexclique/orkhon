@@ -2,18 +2,14 @@ use std::collections::HashMap;
 
 use crate::config::{OrkhonConfig};
 use crate::pooled::PooledModel;
-use crate::service::{Service, AsyncService, PythonAsyncService};
+use crate::service::{Service, TensorflowAsyncService, PythonAsyncService};
 use crate::tensorflow::TFModel;
 use crate::reqrep::{ORequest, OResponse, PyModelRequest, TFRequest, TFResponse};
-use crate::service_macros::*;
 use crate::errors::*;
 
 use log::*;
 use std::path::PathBuf;
-use futures::prelude::future::FutureObj;
-use std::any::Any;
-use pyo3::{PyTypeInfo, ToPyObject, PyObject};
-use pyo3::types::PyDict;
+use pyo3::{ToPyObject, PyObject};
 use std::{cmp, hash};
 
 #[derive(Default, Clone)]
@@ -75,11 +71,7 @@ impl Orkhon {
     pub fn tensorflow_request(
         mut self, model_name: &str,
         request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
-        if let Some(modelbox) = self.tf_services.get_mut(model_name) {
-            modelbox.process(request)
-        } else {
-            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
-        }
+        request_sync_for!(self.tf_services, model_name, request)
     }
 
     pub async fn pymodel_request_async<K: 'static + Send, R: 'static + Send, T: 'static + Send>(
@@ -88,21 +80,13 @@ impl Orkhon {
         where K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
               R: Default + ToPyObject + Send,
               T: Default + ToPyObject + Send {
-        if let Some(modelbox) = self.py_services.get_mut(model_name) {
-            modelbox.async_process(request).await
-        } else {
-            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
-        }
+        request_async_for!(self.py_services, model_name, request)
     }
 
     pub async fn tensorflow_request_async(
         mut self, model_name: &str,
         request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
-        if let Some(modelbox) = self.tf_services.get_mut(model_name) {
-            modelbox.async_process(request).await
-        } else {
-            Err(ErrorKind::OrkhonModelNotFoundError("Can't find model.".to_string()).into())
-        }
+        request_async_for!(self.tf_services, model_name, request)
     }
 
     pub fn build(mut self) -> Self {

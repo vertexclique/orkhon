@@ -1,11 +1,9 @@
 use tract_core::internal::HashMap;
 use std::{hash, cmp};
-use pyo3::{ToPyObject, PyTypeInfo};
-use pyo3::types::PyDict;
+use pyo3::ToPyObject;
 use tract_core::tensor::Tensor;
 use std::sync::Arc;
 use smallvec::SmallVec;
-use tract_core::model::TVec;
 
 pub enum Types {
     PyModel,

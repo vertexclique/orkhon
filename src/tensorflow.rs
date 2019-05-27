@@ -1,17 +1,14 @@
-use crate::service::{Service, AsyncService};
+use crate::service::{Service, TensorflowAsyncService};
 use crate::reqrep::{OResponse, ORequest, TFRequest, TFResponse};
 use crate::errors::*;
 use std::path::PathBuf;
 
-use tract_core::ndarray;
 use tract_core::framework::*;
 use tract_core::prelude::*;
 
-use log::*;
 use std::thread;
 
 use futures::channel::oneshot;
-use std::future::Future;
 use futures::prelude::future::FutureObj;
 
 
@@ -62,7 +59,7 @@ impl Service for TFModel {
     }
 }
 
-impl AsyncService for TFModel where {
+impl TensorflowAsyncService for TFModel where {
     type FutType = FutureObj<'static, Result<OResponse<TFResponse>>>;
 
     fn async_process(&mut self, request: ORequest<TFRequest>)

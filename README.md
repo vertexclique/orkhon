@@ -75,6 +75,7 @@ orkhon = "0.1.0"
 
 ## Dependencies
 You will need:
+* Rust Nightly needed (for now. until async support fully lands in)
 * Python dev dependencies installed and have proper python runtime to use Orkhon with your project.
 * Point out your `PYTHONHOME` environment variable to your Python installation.
 

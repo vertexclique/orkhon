@@ -1,10 +1,9 @@
 use crate::config::OrkhonConfig;
-use crate::service::{Service, AsyncService, PythonAsyncService};
+use crate::service::{Service, PythonAsyncService};
 use crate::reqrep::{ORequest, OResponse, PyModelRequest};
 use crate::errors::*;
 
 use std::path::PathBuf;
-use std::error::Error;
 
 use pyo3::prelude::*;
 use pyo3::types::*;
@@ -13,9 +12,8 @@ use log::*;
 use std::{thread, cmp, hash, fs};
 
 use futures::channel::oneshot;
-use std::future::Future;
 use futures::prelude::future::FutureObj;
-use pyo3::PyTypeInfo;
+
 
 #[derive(Default, Clone)]
 pub struct PooledModel {
@@ -94,8 +92,8 @@ impl PooledModel {
             }).unwrap();
         warn!("SYS PATH => \n{:?}", syspath);
 
-        let mut args_data = request.body.args.into_py_dict(py);
-        let mut args = PyTuple::new(py, &[args_data]);
+        let args_data = request.body.args.into_py_dict(py);
+        let args = PyTuple::new(py, &[args_data]);
 
         let kwargs = request.body.kwargs.into_py_dict(py);
 
