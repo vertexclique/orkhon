@@ -54,7 +54,85 @@
 //! This api uses [PyO3 bindings] for Python <-> Rust. You can look for PyO3's documentation to make conversions.
 //! Auto conversion methods soon will be added.
 //!
+//! ## Examples
+//! #### Creating Orkhon
+//!
+//! ```
+//! # #[macro_use] extern crate orkhon;
+//! # use orkhon::orkhon::Orkhon;
+//! # use orkhon::config::OrkhonConfig;
+//! # use std::path::PathBuf;
+//! Orkhon::new()
+//!    .config(OrkhonConfig::new())
+//!    .pymodel("model_which_will_be_tested", // Unique identifier of the model
+//!             "tests/pymodels",             // Python module directory
+//!             "model_test",                 // Python module file name
+//!        "model_hook"                       // Hook(Python method) that will be called by Orkhon
+//!    )
+//!    .build();
+//! ```
+//!
+//! #### Requesting to Orkhon
+//!
+//! ```
+//! # #[macro_use] extern crate orkhon;
+//! # use orkhon::orkhon::Orkhon;
+//! # use orkhon::config::OrkhonConfig;
+//! # use std::path::PathBuf;
+//! # use std::collections::HashMap;
+//! # use orkhon::reqrep::{ORequest, PyModelRequest};
+//! #
+//! # Orkhon::new()
+//! #    .config(OrkhonConfig::new())
+//! #    .pymodel("model_which_will_be_tested", // Unique identifier of the model
+//! #             "tests/pymodels",             // Python module directory
+//! #             "model_test",                 // Python module file name
+//! #        "model_hook"                       // Hook(Python method) that will be called by Orkhon
+//! #    )
+//! #    .build();
+//! // Args for the request hook
+//! let mut request_args = HashMap::new();
+//! request_args.insert("is", 10);
+//! request_args.insert("are", 6);
+//! request_args.insert("you", 5);
+//!
+//! // Kwargs for the request hook
+//! let mut request_kwargs = HashMap::<&str, &str>::new();
+//!
+//! // Future handle (await over it... if you want)
+//! let handle =
+//!     o.pymodel_request_async(
+//!         "model_which_will_be_tested",
+//!             ORequest::with_body(
+//!                 PyModelRequest::new()
+//!                     .with_args(request_args)
+//!                     .with_kwargs(request_kwargs)
+//!             )
+//!     );
+//!
+//! ```
+//!
+//! ## License
+//!
+//! License is [MIT]
+//!
+//! ## Discussion and Development
+//! We use [Gitter] for development discussions. Also please don't hesitate to open issues on GitHub ask for features, report bugs, comment on design and more!
+//! More interaction and more ideas are better!
+//!
+//! ## Contributing to Orkhon [![Open Source Helpers](https://www.codetriage.com/vertexclique/orkhon/badges/users.svg)](https://www.codetriage.com/vertexclique/orkhon)
+//!
+//! All contributions, bug reports, bug fixes, documentation improvements, enhancements and ideas are welcome.
+//!
+//! A detailed overview on how to contribute can be found in the  [CONTRIBUTING guide] on GitHub.
+//!
+//!
 //! [PyO3 bindings]: https://github.com/PyO3/pyo3
+//! [`HashSet`]: https://doc.rust-lang.org/std/collections/struct.HashSet.html
+//! [`PyObject`]: https://docs.rs/pyo3/0.7.0/pyo3/struct.PyObject.html
+//! [MIT]: https://github.com/vertexclique/orkhon/blob/master/LICENSE
+//! [CONTRIBUTING guide]: https://github.com/vertexclique/orkhon/blob/master/.github/CONTRIBUTING.md
+//! [Gitter]: https://gitter.im/orkhonml/community
 
 #![doc(html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png")]
 
