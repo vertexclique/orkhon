@@ -1,0 +1,88 @@
+# Based on the "trust" template v0.1.2
+# https://github.com/japaric/trust/tree/v0.1.2
+
+dist: trusty
+language: rust
+services: docker
+sudo: required
+
+# TODO Rust builds on stable by default, this can be
+# overridden on a case by case basis down below.
+
+env:
+  global:
+    # TODO Update this to match the name of your project.
+    - CRATE_NAME=orkhon
+
+matrix:
+  # TODO These are all the build jobs. Adjust as necessary. Comment out what you
+  # don't need
+  include:
+    # Linux
+    - env: TARGET=i686-unknown-linux-gnu
+      rust: nightly
+    - env: TARGET=i686-unknown-linux-musl
+      rust: nightly
+
+    - env: TARGET=x86_64-unknown-linux-gnu
+      rust: nightly
+    - env: TARGET=x86_64-unknown-linux-musl
+      rust: nightly
+
+    # OSX
+    - env: TARGET=i686-apple-darwin
+      os: osx
+      rust: nightly
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+      rust: nightly
+
+before_install:
+  - set -e
+  - rustup self update
+
+install:
+  - sh ci/install.sh
+  - source ~/.cargo/env || true
+
+script:
+  - bash ci/script.sh
+
+after_script: set +e
+
+before_deploy:
+  - sh ci/before_deploy.sh
+
+deploy:
+  # TODO update `api_key.secure`
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
+  # - Paste the output down here
+  api_key:
+    secure: "hvfU3R+F6N2PTonJlnS7dkQULZHyDLesezMJB0GJh+goYdatcj66F1vNxlWjwZpL9ZN+fLjml9Qv0QKTci4OU33CCSdJ/xL4N6/ZND2CLziaX1OPeMlEhBJkYt8xn5HiV/eLAWovpIsQVlU5b6eDMzypar3v7NQGYsVbRuIplSE2QnWK3wbVbYfhj6leaI7RU/WlT2+z5hbk0ncO4E5oY2A/ef4Mp+k9nLmES7pnwDMhV+n8Zc8LI24vRgAlTDV/mBJcHrmYir97xhEC6e8CteuYjajD+wiKRgwiozkNzf8fZzxD+B78ucCbINpSfwfdQjJOa7gXkooc4tEbTI/nW9UvxLajXy5glVRkTGS/toS1INW83FVr3sdOrFANaayWlHVbVxWfYWAJ042UF+Q3vwXPzqlpvOTbW7K1C4V7Y8BzezOVrvHr/NKfW2h5RgSyyVjVdnH00qAnMQEMivmCbfY/w8sCiwUtD4CaHZ2Z+BDUUtO7HsejI8YoP7aGVcRrnlzBqg8J+vnvTzmUPeBoXDw3LOdjfUdjXFk82MmTwZM1lweHKpbpU5hJHAXP/QUJ+OHhRqHiplD1XP2+iuVEq7wcvslngBiUvdmyIouYj1blKsTl2OHGsjXtnm9DH5fpB5ojjXb9LuV2E4uBqvQhDpoL/1p7+7WM5/qegJsIqXg="
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    # TODO Here you can pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
+    condition: $DEPLOY = never
+    tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    # release tags
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
+
+notifications:
+  email:
+    on_success: never
