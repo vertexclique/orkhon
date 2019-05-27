@@ -1,18 +1,9 @@
 #![feature(async_await)]
 
-#[macro_use]
-extern crate static_assertions;
-
 use orkhon::orkhon::Orkhon;
 use orkhon::config::OrkhonConfig;
-use orkhon::tensorflow::TFModel;
-use std::path::PathBuf;
-use std::{env, fs};
-use log::*;
-use orkhon::pooled::PooledModel;
-use orkhon::reqrep::{ORequest, TFRequest, PyModelRequest, OResponse, TFResponse};
-use tract_core::internal::{PhantomData, HashMap};
-use orkhon::errors::*;
+use orkhon::reqrep::{ORequest, PyModelRequest};
+use std::collections::HashMap;
 
 #[runtime::test(runtime_tokio::Tokio)]
 async fn test_async_request_for_dummy_py_model() {
@@ -32,7 +23,7 @@ async fn test_async_request_for_dummy_py_model() {
     request_args.insert("are", 6);
     request_args.insert("you", 5);
 
-    let mut request_kwargs = HashMap::<&str, &str>::new();
+    let request_kwargs = HashMap::<&str, &str>::new();
 
     let handle =
         o.pymodel_request_async(

@@ -9,7 +9,7 @@ pub mod service;
 pub mod tensorflow;
 
 #[macro_use]
-pub mod service_macros;
+mod service_macros;
 pub mod errors;
 
 pub mod orkhon;
