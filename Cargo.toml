@@ -14,6 +14,20 @@ documentation = "https://docs.rs/orkhon"
 readme = "README.md"
 license = "MIT"
 edition = "2018"
+exclude = [
+	".github/*",
+	"examples/*",
+	"graphstore/*",
+	"tests/*",
+	"ci/*",
+	"benches/*",
+	"doc/*",
+	"*.png",
+	"*.dot",
+	"*.yml",
+	"*.toml",
+	"*.md"
+]
 
 [badges]
 travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
@@ -46,17 +60,3 @@ rpath = false
 lto = false
 debug-assertions = false
 codegen-units = 1
-
-exclude = [
-	".github/*",
-	"examples/*",
-	"graphstore/*",
-	"tests/*",
-	"benches/*",
-	"doc/*",
-	"*.png",
-	"*.dot",
-	"*.yml",
-	"*.toml",
-	"*.md"
-]
