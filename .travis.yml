@@ -6,11 +6,6 @@ language: rust
 services: docker
 sudo: required
 
-addons:
-  apt:
-    packages:
-      - "python3"
-      - "python3-pip"
 # TODO Rust builds on stable by default, this can be
 # overridden on a case by case basis down below.
 
@@ -45,6 +40,7 @@ matrix:
 before_install:
   - set -e
   - rustup self update
+  - pyenv global 3.6
   - sudo -E pip3 install numpy tensorflow opencv-python
 
 install:
