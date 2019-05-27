@@ -4,12 +4,7 @@
 mod tests {
     use orkhon::orkhon::Orkhon;
     use orkhon::config::OrkhonConfig;
-    use orkhon::tensorflow::TFModel;
     use std::path::PathBuf;
-    use std::{env, fs};
-    use log::*;
-    use orkhon::pooled::PooledModel;
-    use orkhon::reqrep::ORequest;
 
     fn init() {
         let _ = env_logger::builder().is_test(true).try_init();
@@ -74,7 +69,7 @@ mod tests {
     fn sync_request_python_model() {
         init();
 
-        let o = Orkhon::new()
+        Orkhon::new()
             .config(OrkhonConfig::new())
             .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
             .build();

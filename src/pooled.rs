@@ -58,7 +58,6 @@ impl PooledModel {
             K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
             V: Default + ToPyObject + Send,
             T: Default + ToPyObject + Send {
-//        let module_path = self.module_path.clone().into_os_string().into_string().unwrap();
         let mut module_path = self.module_path.clone();
         let syspath_module_path =
             self.module_path.clone().into_os_string().into_string().unwrap();
@@ -81,7 +80,11 @@ impl PooledModel {
             .try_into()
             .unwrap();
 
-        syspath.insert(0, syspath_module_path).unwrap();
+        let syspath_entry = syspath.get_item(0).downcast_ref::<PyString>().unwrap().to_string_lossy();
+
+        if syspath_entry.as_ref() != syspath_module_path {
+            syspath.insert(0, syspath_module_path).unwrap();
+        }
 
         let datamod = PyModule::from_code(py, source.as_str(), self.name, self.name)
             .map_err::<ErrorKind, _>(|e| {
