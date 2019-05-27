@@ -46,3 +46,17 @@ rpath = false
 lto = false
 debug-assertions = false
 codegen-units = 1
+
+exclude = [
+	".github/*",
+	"examples/*",
+	"graphstore/*",
+	"tests/*",
+	"benches/*",
+	"doc/*",
+	"*.png",
+	"*.dot",
+	"*.yml",
+	"*.toml",
+	"*.md"
+]
