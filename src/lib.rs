@@ -48,7 +48,7 @@
 //! #### Python Hook Output
 //! Python hook output is passed up without downcasting or casting. Python bindings are still exposed to make sure you get the type you wanted.
 //! By default; python passes [`PyObject`] to Rust interface. You can extract the type from the object that Python passed with
-//! ```rust
+//! ```ignore
 //! pyobj.extract()?
 //! ```
 //! This api uses [PyO3 bindings] for Python <-> Rust. You can look for PyO3's documentation to make conversions.
@@ -82,7 +82,7 @@
 //! # use std::collections::HashMap;
 //! # use orkhon::reqrep::{ORequest, PyModelRequest};
 //! #
-//! # Orkhon::new()
+//! # let o = Orkhon::new()
 //! #    .config(OrkhonConfig::new())
 //! #    .pymodel("model_which_will_be_tested", // Unique identifier of the model
 //! #             "tests/pymodels",             // Python module directory
@@ -151,4 +151,3 @@ mod service_macros;
 pub mod errors;
 
 pub mod orkhon;
-
