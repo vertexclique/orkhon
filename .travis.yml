@@ -1,5 +1,6 @@
-language: rust
+language: python
 dist: xenial
+sudo: false
 
 addons:
   apt:
@@ -9,10 +10,15 @@ addons:
       - libdbus-1-dev
       - musl-tools
       - fakeroot
-      - python3.5-dev
       - python3.6-dev
-      - python3.6-venv
-      - python3.7-dev
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - cmake
+      - gcc
+      - binutils-dev
+      - libiberty-dev
+
 
 env:
   global:
@@ -25,30 +31,34 @@ matrix:
     - env: TARGET=x86_64-unknown-linux-gnu
       os: linux
       rust: nightly
+      python: 3.6
 
     # MacOS
     - env: TARGET=x86_64-apple-darwin
       os: osx
       rust: nightly
+      language: generic
 
 before_install:
   - set -e
+  - curl https://sh.rustup.rs -sSf > rustup-init.sh
+  - sh rustup-init.sh --default-toolchain nightly -y -v
+  - export PATH="$HOME/.cargo/bin:$PATH"
   - rustup self update
   - |
     if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      brew update
-      brew upgrade pyenv
-      pyenv install 3.6.6
-      pyenv global system 3.6.6
-      python3.6 -m pip install numpy tensorflow opencv-python
+      pip uninstall numpy --yes
+      pip3 uninstall numpy --yes
+      sudo pip3 install numpy --upgrade --ignore-installed
+      python3.6 -m pip install tensorflow opencv-python
     fi
   - |
     if [ "$TRAVIS_OS_NAME" == "linux" ]; then
       python3.6 -m pip install numpy tensorflow opencv-python
+      export LD_LIBRARY_PATH=/opt/pyenv/versions/3.6.7/lib:$LD_LIBRARY_PATH
     fi
 
 install:
-  - sh ci/install.sh
   - source ~/.cargo/env || true
 
 script:
