@@ -136,10 +136,6 @@
 
 #![doc(html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png")]
 
-#![feature(async_await)]
-#[macro_use]
-extern crate error_chain;
-
 pub mod config;
 pub mod pooled;
 pub mod reqrep;
