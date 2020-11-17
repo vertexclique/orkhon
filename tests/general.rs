@@ -73,6 +73,25 @@ fn build_manual_input_tf_model() {
         .build();
 }
 
+#[test]
+fn build_manual_input_onnx_model() {
+    init();
+    // If you want to infer input tensor shapes you need to use the saved model in directory coming out of `model.save()`.
+    // Since tf backend forces us to use "saved_model" naming. Always give a file with that name to it.
+    Orkhon::new()
+        .config(
+            OrkhonConfig::new().with_input_fact_shape(InferenceFact::dt_shape(
+                f32::datum_type(),
+                tvec![10, 100],
+            )),
+        )
+        .onnx(
+            "onnx_model",
+            PathBuf::from("tests/protobuf/onnx_model/example.onnx"),
+        )
+        .build();
+}
+
 // #[test]
 // fn build_configured_python_model() {
 //     init();

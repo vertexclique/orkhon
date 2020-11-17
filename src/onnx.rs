@@ -5,7 +5,7 @@ use std::path::PathBuf;
 
 use tract_core::framework::*;
 use tract_core::prelude::*;
-use tract_tensorflow::prelude::*;
+use tract_onnx::prelude::*;
 
 use crate::config::OrkhonConfig;
 
@@ -55,7 +55,7 @@ type InferenceGraph = Graph<InferenceFact, Box<dyn InferenceOp>>;
 impl Service for ONNXModel {
     fn load(&mut self) -> Result<()> {
         let unoptimized: InferenceGraph =
-            tract_tensorflow::tensorflow().model_for_path(self.file.as_path())?;
+            tract_onnx::onnx().model_for_path(self.file.as_path())?;
 
         let input_loaded =
             unoptimized.with_input_fact(

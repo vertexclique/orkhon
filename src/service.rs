@@ -1,5 +1,5 @@
 use crate::errors::*;
-use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse, ONNXRequest, ONNXResponse};
+use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse};
 use async_trait::async_trait;
 
 pub(crate) trait Service {
@@ -14,13 +14,7 @@ pub(crate) trait TensorflowAsyncService {
     ) -> Result<OResponse<TFResponse>>;
 }
 
-#[async_trait]
-pub(crate) trait ONNXAsyncService {
-    async fn async_process(
-        &mut self,
-        request: ORequest<ONNXRequest>,
-    ) -> Result<OResponse<ONNXResponse>>;
-}
+
 
 
 cfg_if::cfg_if! {
@@ -38,6 +32,16 @@ cfg_if::cfg_if! {
                 K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,
                 V: Default + ToPyObject + Send,
                 T: Default + ToPyObject + Send;
+        }
+    } else if #[cfg(feature = "onnxmodel")] {
+        use crate::reqrep::{ONNXRequest, ONNXResponse};
+
+        #[async_trait]
+        pub(crate) trait ONNXAsyncService {
+            async fn async_process(
+                &mut self,
+                request: ORequest<ONNXRequest>,
+            ) -> Result<OResponse<ONNXResponse>>;
         }
     }
 }

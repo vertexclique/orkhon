@@ -93,7 +93,7 @@
 cfg_if::cfg_if! {
     if #[cfg(feature = "pymodel")] {
         pub mod pooled;
-    } else if #[cfg(feature = "onxxmodel")] {
+    } else if #[cfg(feature = "onnxmodel")] {
         pub mod onnx;
     }
 }

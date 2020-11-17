@@ -86,6 +86,42 @@ cfg_if::cfg_if! {
         impl PyModelResponse {
            pub fn new() -> Self { PyModelResponse { ..Default::default() } }
         }
+    } else if #[cfg(feature = "onnxmodel")] {
+        /// ONNX request
+        #[derive(Default, Debug)]
+        pub struct ONNXRequest {
+            pub input: Tensor,
+        }
+
+        impl ONNXRequest {
+            /// Creates a new ONNX inference request
+            pub fn new() -> Self {
+                ONNXRequest {
+                    ..Default::default()
+                }
+            }
+        }
+
+        /// ONNX response
+        #[derive(Default, Debug)]
+        pub struct ONNXResponse {
+            pub output: SmallVec<[Arc<Tensor>; 4]>,
+        }
+
+        impl ONNXResponse {
+            /// Creates a new ONNX inference response
+            pub fn new() -> Self {
+                ONNXResponse {
+                    ..Default::default()
+                }
+            }
+
+            /// Give output coming out from ONNX
+            pub fn with_output(mut self, output: SmallVec<[Arc<Tensor>; 4]>) -> Self {
+                self.output = output;
+                self
+            }
+        }
     }
 }
 
@@ -119,42 +155,6 @@ impl TFResponse {
     }
 
     /// Give output coming out from tensorflow
-    pub fn with_output(mut self, output: SmallVec<[Arc<Tensor>; 4]>) -> Self {
-        self.output = output;
-        self
-    }
-}
-
-/// ONNX request
-#[derive(Default, Debug)]
-pub struct ONNXRequest {
-    pub input: Tensor,
-}
-
-impl ONNXRequest {
-    /// Creates a new ONNX inference request
-    pub fn new() -> Self {
-        ONNXRequest {
-            ..Default::default()
-        }
-    }
-}
-
-/// ONNX response
-#[derive(Default, Debug)]
-pub struct ONNXResponse {
-    pub output: SmallVec<[Arc<Tensor>; 4]>,
-}
-
-impl ONNXResponse {
-    /// Creates a new ONNX inference response
-    pub fn new() -> Self {
-        ONNXResponse {
-            ..Default::default()
-        }
-    }
-
-    /// Give output coming out from ONNX
     pub fn with_output(mut self, output: SmallVec<[Arc<Tensor>; 4]>) -> Self {
         self.output = output;
         self

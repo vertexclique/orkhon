@@ -33,8 +33,8 @@ travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["onxxmodel"]
-onxxmodel = ["tract-onnx"]
+default = []
+onnxmodel = ["tract-onnx"]
 pymodel = ["pyo3"]
 
 [dependencies]

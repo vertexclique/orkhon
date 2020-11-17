@@ -10,11 +10,26 @@ use log::*;
 
 use std::path::PathBuf;
 
+cfg_if::cfg_if! {
+    if #[cfg(feature = "pymodel")] {
+        use crate::pooled::PooledModel;
+        use crate::service::PythonAsyncService;
+    } else if #[cfg(feature = "onnxmodel")] {
+        use crate::onnx::ONNXModel;
+        use crate::service::ONNXAsyncService;
+        use crate::reqrep::{ONNXRequest, ONNXResponse};
+    }
+}
+
+
 #[derive(Default, Clone)]
 pub struct Orkhon {
     config: OrkhonConfig,
-    // py_services: HashMap<String, PooledModel>,
     tf_services: HashMap<String, TFModel>,
+    #[cfg(feature = "pymodel")]
+    py_services: HashMap<String, PooledModel>,
+    #[cfg(feature = "onnxmodel")]
+    onnx_services: HashMap<String, ONNXModel>,
 }
 
 impl Orkhon {
@@ -63,6 +78,11 @@ impl Orkhon {
                     warn!("Loading Python model :: {}", model_name);
                     model_service.load().unwrap();
                 }
+            } else if #[cfg(feature = "onnxmodel")] {
+                for (model_name, model_service) in &mut self.onnx_services {
+                    warn!("Loading ONNX model :: {}", model_name);
+                    model_service.load().unwrap();
+                }
             }
         }
 
@@ -76,9 +96,6 @@ impl Orkhon {
 
     cfg_if::cfg_if! {
         if #[cfg(feature = "pymodel")] {
-            use crate::pooled::PooledModel;
-            use crate::service::{PythonAsyncService};
-
             pub fn pymodel(mut self,
                            model_name: &'static str,
                            module_path: &'static str,
@@ -115,6 +132,35 @@ impl Orkhon {
                       R: Default + ToPyObject + Send,
                       T: Default + ToPyObject + Send {
                 request_async_for!(self.py_services, model_name, request)
+            }
+        } else if #[cfg(feature = "onnxmodel")] {
+            pub fn onnx<T>(mut self, model_name: T, model_file: PathBuf) -> Self
+            where
+                T: AsRef<str>
+            {
+                let model_spec = ONNXModel::new(self.config.clone())
+                    .with_name(model_name.as_ref().to_owned())
+                    .with_model_file(model_file);
+
+                self.onnx_services.insert(model_name.as_ref().to_owned(), model_spec);
+
+                self
+            }
+
+            pub fn onnx_request(
+                mut self,
+                model_name: &str,
+                request: ORequest<ONNXRequest>,
+            ) -> Result<OResponse<ONNXResponse>> {
+                request_sync_for!(self.onnx_services, model_name, request)
+            }
+
+            pub async fn onnx_request_async(
+                mut self,
+                model_name: &str,
+                request: ORequest<ONNXRequest>,
+            ) -> Result<OResponse<ONNXResponse>> {
+                request_async_for!(self.onnx_services, model_name, request)
             }
         }
     }
