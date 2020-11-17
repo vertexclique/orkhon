@@ -55,7 +55,7 @@ jobs:
           args: --all
 
   check_fmt_and_docs:
-    name: Checking fmt and docs
+    name: Checking docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -67,8 +67,8 @@ jobs:
           default: true
           components: rustfmt
 
-      - name: fmt
-        run: cargo fmt --all -- --check
+#      - name: fmt
+#        run: cargo fmt --all -- --check
 
       - name: doc
         run: cargo doc
