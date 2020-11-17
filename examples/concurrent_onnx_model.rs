@@ -1,4 +1,4 @@
-use futures::future::join_all;
+use futures_util::future::join_all;
 use nuclei::prelude::*;
 use orkhon::prelude::*;
 use orkhon::tcore::ndarray::ArrayBase;

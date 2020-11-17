@@ -41,7 +41,6 @@ pymodel = ["pyo3"]
 cfg-if = "1.0.0"
 log = "0.4.6"
 env_logger = "0.6.1"
-bytes = "0.4"
 thiserror = "1.0"
 lever = "0.1.1-alpha.11"
 
@@ -51,7 +50,7 @@ tract-core = "0.11"
 tract-tensorflow = { version = "0.11", features = ["conform"] }
 tract-onnx = { version = "0.11", optional = true }
 smallvec = "1.4"
-futures = "0.3"
+futures-util = "0.3"
 async-trait = "0.1"
 
 [dev-dependencies]

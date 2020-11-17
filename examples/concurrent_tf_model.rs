@@ -1,4 +1,4 @@
-use futures::future::join_all;
+use futures_util::future::join_all;
 use nuclei::join_handle::JoinHandle;
 use nuclei::prelude::*;
 use orkhon::prelude::*;
