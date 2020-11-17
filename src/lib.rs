@@ -24,8 +24,7 @@
 //!
 //! ## Dependencies
 //! You will need:
-//! * Rust Nightly needed (for now. until async support fully lands in)
-//! * Python dev dependencies installed and have proper python runtime to use Orkhon with your project.
+//! * If you use `pymodel` feature, Python dev dependencies should be installed and have proper python runtime to use Orkhon with your project.
 //! * Point out your `PYTHONHOME` environment variable to your Python installation.
 //!
 //! ## Python API contract
@@ -58,58 +57,11 @@
 //! #### Creating Orkhon
 //!
 //! ```
-//! # #[macro_use] extern crate orkhon;
-//! # use orkhon::orkhon::Orkhon;
-//! # use orkhon::config::OrkhonConfig;
-//! # use std::path::PathBuf;
-//! Orkhon::new()
-//!    .config(OrkhonConfig::new())
-//!    .pymodel("model_which_will_be_tested", // Unique identifier of the model
-//!             "tests/pymodels",             // Python module directory
-//!             "model_test",                 // Python module file name
-//!        "model_hook"                       // Hook(Python method) that will be called by Orkhon
-//!    )
-//!    .build();
 //! ```
 //!
 //! #### Requesting to Orkhon
 //!
 //! ```
-//! # #[macro_use] extern crate orkhon;
-//! # use orkhon::orkhon::Orkhon;
-//! # use orkhon::config::OrkhonConfig;
-//! # use std::path::PathBuf;
-//! # use std::collections::HashMap;
-//! # use orkhon::reqrep::{ORequest, PyModelRequest};
-//! #
-//! # let o = Orkhon::new()
-//! #    .config(OrkhonConfig::new())
-//! #    .pymodel("model_which_will_be_tested", // Unique identifier of the model
-//! #             "tests/pymodels",             // Python module directory
-//! #             "model_test",                 // Python module file name
-//! #        "model_hook"                       // Hook(Python method) that will be called by Orkhon
-//! #    )
-//! #    .build();
-//! // Args for the request hook
-//! let mut request_args = HashMap::new();
-//! request_args.insert("is", 10);
-//! request_args.insert("are", 6);
-//! request_args.insert("you", 5);
-//!
-//! // Kwargs for the request hook
-//! let mut request_kwargs = HashMap::<&str, &str>::new();
-//!
-//! // Future handle (await over it... if you want)
-//! let handle =
-//!     o.pymodel_request_async(
-//!         "model_which_will_be_tested",
-//!             ORequest::with_body(
-//!                 PyModelRequest::new()
-//!                     .with_args(request_args)
-//!                     .with_kwargs(request_kwargs)
-//!             )
-//!     );
-//!
 //! ```
 //!
 //! ## License
@@ -138,16 +90,18 @@
     html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png"
 )]
 
-pub mod config;
 cfg_if::cfg_if! {
     if #[cfg(feature = "pymodel")] {
         pub mod pooled;
+    } else if #[cfg(feature = "onxxmodel")] {
+        pub mod onnx;
     }
 }
+
+pub mod tensorflow;
+pub mod config;
 pub mod reqrep;
 pub mod service;
-pub mod tensorflow;
-pub mod onnx;
 
 #[macro_use]
 mod service_macros;

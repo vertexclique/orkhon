@@ -33,7 +33,8 @@ travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = []
+default = ["onxxmodel"]
+onxxmodel = ["tract-onnx"]
 pymodel = ["pyo3"]
 
 [dependencies]
@@ -47,6 +48,7 @@ thiserror = "1.0"
 pyo3 = { version = "0.12", optional = true }
 tract-core = "0.11"
 tract-tensorflow = { version = "0.11", features = ["conform"] }
+tract-onnx = { version = "0.11", optional = true }
 smallvec = "1.4"
 futures = "0.3"
 async-trait = "0.1"
