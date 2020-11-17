@@ -55,23 +55,23 @@ mod tests {
             .build();
     }
 
-    #[test]
-    fn build_configured_python_model() {
-        init();
-
-        Orkhon::new()
-            .config(OrkhonConfig::new())
-            .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
-            .build();
-    }
-
-    #[test]
-    fn sync_request_python_model() {
-        init();
-
-        Orkhon::new()
-            .config(OrkhonConfig::new())
-            .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
-            .build();
-    }
+    // #[test]
+    // fn build_configured_python_model() {
+    //     init();
+    //
+    //     Orkhon::new()
+    //         .config(OrkhonConfig::new())
+    //         .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
+    //         .build();
+    // }
+    //
+    // #[test]
+    // fn sync_request_python_model() {
+    //     init();
+    //
+    //     Orkhon::new()
+    //         .config(OrkhonConfig::new())
+    //         .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
+    //         .build();
+    // }
 }

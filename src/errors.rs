@@ -6,65 +6,20 @@ pub type Result<T> = result::Result<T, OrkhonError>;
 
 #[derive(Error, Debug)]
 pub enum OrkhonError {
-    #[error("Orkhon: Model Not Found Error: {}")]
+    #[error("Orkhon: Model Not Found Error: {0}")]
     ModelNotFound(String),
-    #[error("Orkhon: Request Error: {}")]
+    #[error("Orkhon: Request Error: {0}")]
     RequestError(String),
-    #[error("Orkhon: Request Kind Error: {}")]
+    #[error("Orkhon: Request Kind Error: {0}")]
     RequestKindError(String),
-    #[error("Orkhon: Acquire GIL Error: {}")]
+    #[error("Orkhon: Acquire GIL Error: {0}")]
     AcquireGILError(String),
-    #[error("Orkhon: Python Module Error: {}")]
+    #[error("Orkhon: Python Module Error: {0}")]
     PyModuleError(String),
-    #[error("Orkhon: Python Callee Error: {}")]
+    #[error("Orkhon: Python Callee Error: {0}")]
     PyCallError(String),
-    #[error("Orkhon: Python Callee Error: {}")]
+    #[error("Orkhon: Python Callee Error: {0}")]
     OsStringCnvError(String),
-    #[error("Orkhon: Model Backend Error: {}")]
-    ModelBackendError(#[from] tract_core::errors::TractError),
-
+    #[error("Orkhon: Model Backend Error: {0}")]
+    ModelBackendError(#[from] tract_core::TractError),
 }
-
-// error_chain! {
-//     errors {
-//         OrkhonModelNotFoundError(ex: String) {
-//             description("Orkhon Model Not Found Error")
-//             display("Orkhon Model Not Found Error: {}", ex)
-//         }
-//
-//         OrkhonRequestError(ex: String) {
-//             description("Orkhon Request Error")
-//             display("Orkhon Request Error: {}", ex)
-//         }
-//
-//         OrkhonRequestKindError(ex: String) {
-//             description("Orkhon Request Kind Error")
-//             display("Orkhon Request Kind Error: {}", ex)
-//         }
-//
-//         OrkhonAcquireGILError(ex: String) {
-//             description("Orkhon Acquire GIL Error")
-//             display("Error occured during acquiring GIL: {}", ex)
-//         }
-//
-//         OrkhonPyModuleError(ex: String) {
-//             description("Orkhon Python Module Error")
-//             display("Python Module Error: {}", ex)
-//         }
-//
-//         OrkhonPyCallError(ex: String) {
-//             description("Orkhon Python Callee Error")
-//             display("Python Callee Error: {}", ex)
-//         }
-//
-//         OrkhonOsStringCnvError {
-//             description("Os string conversion error. Path is not UTF-8.")
-//         }
-//     }
-//
-//     links {
-//         OrkhonTractError(tract_core::errors::TractError, tract_core::errors::TractErrorKind) #[cfg(unix)];
-//     }
-//
-//     foreign_links {}
-// }

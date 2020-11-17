@@ -5,6 +5,7 @@ use std::path::PathBuf;
 
 use tract_core::framework::*;
 use tract_core::prelude::*;
+use tract_tensorflow::prelude::*;
 
 use std::thread;
 
@@ -14,9 +15,9 @@ use futures::prelude::future::FutureObj;
 
 #[derive(Default, Clone)]
 pub struct TFModel {
-    pub name: &'static str,
+    pub name: String,
     pub file: PathBuf,
-    model: Model<TensorFact>
+    model: TypedModel
 }
 
 impl TFModel {
@@ -26,8 +27,11 @@ impl TFModel {
         }
     }
 
-    pub fn with_name(mut self, name: &'static str) -> Self {
-        self.name = name;
+    pub fn with_name<T>(mut self, name: T) -> Self
+    where
+        T: AsRef<str>
+    {
+        self.name = name.as_ref().into();
         self
     }
 
@@ -37,13 +41,12 @@ impl TFModel {
     }
 
     pub(crate) fn process(&mut self, request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
-        let model = self.model.clone().into_optimized()?;
-        let plan = SimplePlan::new(&model)?;
+        let plan = self.model.clone().into_runnable()?;
 
         plan.run(tvec!(request.body.input)).map_err(|e| {
             let err_msg: String = format!("Call failed\n\
             \twith traceback {:?}", e);
-            ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
+            OrkhonError::PyModuleError(err_msg.to_owned())
         }).map(|result| {
             OResponse::with_body(
                 TFResponse::new().with_output(result)
@@ -54,7 +57,10 @@ impl TFModel {
 
 impl Service for TFModel {
     fn load(&mut self) -> Result<()> {
-        self.model = tract_tensorflow::tensorflow().model_for_path(self.file.as_path())?;
+        let unoptimized = tract_tensorflow::tensorflow()
+            .model_for_path(self.file.as_path())?;
+
+        unoptimized.into_optimized()?;
         Ok(())
     }
 }

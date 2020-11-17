@@ -1,7 +1,7 @@
 use tract_core::internal::HashMap;
 use std::{hash, cmp};
 use pyo3::ToPyObject;
-use tract_core::tensor::Tensor;
+use tract_core::prelude::*;
 use std::sync::Arc;
 use smallvec::SmallVec;
 

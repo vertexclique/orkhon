@@ -137,7 +137,8 @@
 #![doc(html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png")]
 
 pub mod config;
-pub mod pooled;
+// TODO: Refactor to the latest
+// pub mod pooled;
 pub mod reqrep;
 pub mod service;
 pub mod tensorflow;

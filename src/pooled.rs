@@ -10,6 +10,7 @@ use pyo3::types::*;
 use log::*;
 
 use std::{thread, cmp, hash, fs};
+use std::any::Any;
 
 use futures::channel::oneshot;
 use futures::prelude::future::FutureObj;
@@ -87,11 +88,11 @@ impl PooledModel {
         }
 
         let datamod = PyModule::from_code(py, source.as_str(), self.name, self.name)
-            .map_err::<ErrorKind, _>(|e| {
+            .map_err(|e| {
                 e.print(py);
                 let err_msg: String = format!("Import failed in {}\n\
                 \twith traceback", self.requester_hook);
-                ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
+                OrkhonError::PyModuleError(err_msg.to_owned())
             }).unwrap();
         warn!("SYS PATH => \n{:?}", syspath);
 
@@ -104,7 +105,7 @@ impl PooledModel {
             e.print(py);
             let err_msg: String = format!("Call failed over {:?}\n\
             \twith traceback", self.requester_hook);
-            ErrorKind::OrkhonPyModuleError(err_msg.to_owned()).into()
+            OrkhonError::PyModuleError(err_msg.to_owned())
         })
         .map(|resp| {
             OResponse::<PyObject> {
@@ -118,7 +119,7 @@ impl Service for PooledModel {
     fn load(&mut self) -> Result<()> {
         if !self.module_path.exists() {
             let mp = format!("Module path doesn't exist {}", self.module_path.to_str().unwrap());
-            return Err(ErrorKind::OrkhonPyModuleError(mp).into())
+            return Err(OrkhonError::OrkhonPyModuleError(mp))
         }
 
         Ok(())

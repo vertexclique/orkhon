@@ -41,7 +41,7 @@ thiserror = "1.0"
 # Backend dependencies
 pyo3 = "0.12"
 tract-core = "0.11"
-tract-tensorflow = "0.11"
+tract-tensorflow = { version = "0.11", features = ["conform"] }
 smallvec = "1.4"
 futures = "0.3"
 
