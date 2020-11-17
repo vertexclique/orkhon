@@ -12,6 +12,8 @@
 //! * Easily embeddable engine for well-known Rust web frameworks.
 //! * API contract for interacting with Python code.
 //! * High processing throughput
+//!     * ~4.8361 GiB/s prediction throughput
+//!     * 3_000 concurrent requests takes ~4ms on average
 //!
 //! ## Installation
 //!
@@ -19,13 +21,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! orkhon = "*"
+//! orkhon = "0.2"
 //! ```
 //!
 //! ## Dependencies
 //! You will need:
-//! * Rust Nightly needed (for now. until async support fully lands in)
-//! * Python dev dependencies installed and have proper python runtime to use Orkhon with your project.
+//! * If you use `pymodel` feature, Python dev dependencies should be installed and have proper python runtime to use Orkhon with your project.
+//! * If you want to have tensorflow inference. Installing tensorflow as library for linking is required.
+//! * ONNX interface doesn't need extra dependencies from the system side.
 //! * Point out your `PYTHONHOME` environment variable to your Python installation.
 //!
 //! ## Python API contract
@@ -55,61 +58,76 @@
 //! Auto conversion methods soon will be added.
 //!
 //! ## Examples
-//! #### Creating Orkhon
+//! #### Request a Tensorflow prediction asynchronously
 //!
-//! ```
-//! # #[macro_use] extern crate orkhon;
-//! # use orkhon::orkhon::Orkhon;
-//! # use orkhon::config::OrkhonConfig;
-//! # use std::path::PathBuf;
-//! Orkhon::new()
-//!    .config(OrkhonConfig::new())
-//!    .pymodel("model_which_will_be_tested", // Unique identifier of the model
-//!             "tests/pymodels",             // Python module directory
-//!             "model_test",                 // Python module file name
-//!        "model_hook"                       // Hook(Python method) that will be called by Orkhon
+//! ```no_run
+//! # use nuclei::prelude::*;
+//! use orkhon::prelude::*;
+//! use orkhon::tcore::prelude::*;
+//! use orkhon::ttensor::prelude::*;
+//! use rand::*;
+//! use std::path::PathBuf;
+//!
+//!let o = Orkhon::new()
+//!    .config(
+//!        OrkhonConfig::new()
+//!            .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
 //!    )
-//!    .build();
+//!    .tensorflow(
+//!        "model_which_will_be_tested",
+//!        PathBuf::from("tests/protobuf/manual_input_infer/my_model.pb"),
+//!    )
+//!    .shareable();
+//!
+//!let mut rng = thread_rng();
+//!let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+//!let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+//!
+//!let o = o.get();
+//!let handle = async move {
+//!    let processor = o.tensorflow_request_async(
+//!       "model_which_will_be_tested",
+//!       ORequest::with_body(TFRequest::new().body(input.into())),
+//!    );
+//!    processor.await
+//!};
+//!let resp = block_on(handle).unwrap();
 //! ```
 //!
-//! #### Requesting to Orkhon
+//! #### Request an ONNX prediction synchronously
 //!
-//! ```
-//! # #[macro_use] extern crate orkhon;
-//! # use orkhon::orkhon::Orkhon;
-//! # use orkhon::config::OrkhonConfig;
-//! # use std::path::PathBuf;
-//! # use std::collections::HashMap;
-//! # use orkhon::reqrep::{ORequest, PyModelRequest};
-//! #
-//! # let o = Orkhon::new()
-//! #    .config(OrkhonConfig::new())
-//! #    .pymodel("model_which_will_be_tested", // Unique identifier of the model
-//! #             "tests/pymodels",             // Python module directory
-//! #             "model_test",                 // Python module file name
-//! #        "model_hook"                       // Hook(Python method) that will be called by Orkhon
-//! #    )
-//! #    .build();
-//! // Args for the request hook
-//! let mut request_args = HashMap::new();
-//! request_args.insert("is", 10);
-//! request_args.insert("are", 6);
-//! request_args.insert("you", 5);
+//! This example needs `onnxmodel` feature enabled.
 //!
-//! // Kwargs for the request hook
-//! let mut request_kwargs = HashMap::<&str, &str>::new();
+//! ```ignore
+//! use orkhon::prelude::*;
+//! use orkhon::tcore::prelude::*;
+//! use orkhon::ttensor::prelude::*;
+//! use rand::*;
+//! use std::path::PathBuf;
 //!
-//! // Future handle (await over it... if you want)
-//! let handle =
-//!     o.pymodel_request_async(
+//! let o = Orkhon::new()
+//!     .config(
+//!         OrkhonConfig::new()
+//!             .with_input_fact_shape(
+//!                 InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+//!     )
+//!     .onnx(
 //!         "model_which_will_be_tested",
-//!             ORequest::with_body(
-//!                 PyModelRequest::new()
-//!                     .with_args(request_args)
-//!                     .with_kwargs(request_kwargs)
-//!             )
-//!     );
+//!         PathBuf::from("tests/protobuf/onnx_model/example.onnx"),
+//!     )
+//!     .build();
 //!
+//! let mut rng = thread_rng();
+//! let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+//! let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+//!
+//! let resp = o
+//!     .onnx_request(
+//!         "model_which_will_be_tested",
+//!         ORequest::with_body(ONNXRequest::new().body(input.into())),
+//!     )
+//!     .unwrap();
+//! assert_eq!(resp.body.output.len(), 1);
 //! ```
 //!
 //! ## License
@@ -134,20 +152,45 @@
 //! [CONTRIBUTING guide]: https://github.com/vertexclique/orkhon/blob/master/.github/CONTRIBUTING.md
 //! [Gitter]: https://gitter.im/orkhonml/community
 
-#![doc(html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png"
+)]
 
-#![feature(async_await)]
-#[macro_use]
-extern crate error_chain;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "pymodel")] {
+        pub mod pooled;
+    } else if #[cfg(feature = "onnxmodel")] {
+        pub mod onnx;
+    }
+}
 
 pub mod config;
-pub mod pooled;
+pub mod errors;
 pub mod reqrep;
 pub mod service;
 pub mod tensorflow;
 
-#[macro_use]
-mod service_macros;
-pub mod errors;
-
 pub mod orkhon;
+
+pub use tract_core as tcore;
+pub use tract_tensorflow as ttensor;
+
+/// Prelude for Orkhon
+pub mod prelude {
+    pub use super::config::*;
+    pub use super::reqrep::*;
+
+    pub use super::tcore::*;
+    pub use super::tensorflow::*;
+    pub use super::ttensor::*;
+
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "pymodel")] {
+            pub use super::pooled::*;
+        } else if #[cfg(feature = "onnxmodel")] {
+            pub use super::onnx::*;
+        }
+    }
+
+    pub use super::orkhon::*;
+}

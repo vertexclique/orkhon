@@ -3,8 +3,7 @@ name = "orkhon"
 description = "Machine Learning Inference Framework and Server Runtime"
 version = "0.1.0"
 authors = [
-    "Mahmut Bulut <vertexclique@gmail.com>",
-    "Berkan Yavrı <yavrib@gmail.com>"
+    "Mahmut Bulut <vertexclique@gmail.com>"
 ]
 keywords = ["machine-learning", "framework", "inference", "prediction", "python-runtime"]
 categories = ["science", "asynchronous", "api-bindings"]
@@ -33,25 +32,32 @@ exclude = [
 travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
 maintenance = { status = "actively-developed" }
 
+[features]
+default = []
+onnxmodel = ["tract-onnx"]
+pymodel = ["pyo3"]
+
 [dependencies]
+cfg-if = "1.0.0"
 log = "0.4.6"
 env_logger = "0.6.1"
-bytes = "0.4"
-error-chain = "0.12.1"
+thiserror = "1.0"
+lever = "0.1.1-alpha.11"
 
 # Backend dependencies
-pyo3 = "0.7.0-alpha.1"
-tract-core = "0.3.3"
-tract-tensorflow = "0.3.3"
-smallvec = "0.6.9"
-
-# hahahahahahha, hahah, hah, (ノಠ益ಠ)ノ彡┻━┻
-futures-preview = "0.3.0-alpha.16"
+pyo3 = { version = "0.12", optional = true }
+tract-core = "0.11"
+tract-tensorflow = { version = "0.11", features = ["conform"] }
+tract-onnx = { version = "0.11", optional = true }
+smallvec = "1.4"
+futures-util = "0.3"
+async-trait = "0.1"
 
 [dev-dependencies]
-runtime = "0.3.0-alpha.4"
-runtime-tokio = "0.3.0-alpha.3"
-static_assertions = "0.3.2"
+nuclei = "0.1.2-alpha.1"
+rand = "0.7.3"
+rayon = "1.5"
+criterion = "0.3"
 
 [profile.bench]
 opt-level = 3
@@ -60,3 +66,7 @@ rpath = false
 lto = false
 debug-assertions = false
 codegen-units = 1
+
+[[bench]]
+name = "onnx_benches"
+harness = false

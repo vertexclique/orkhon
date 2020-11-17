@@ -1,0 +1,104 @@
+language: python
+dist: xenial
+sudo: false
+
+addons:
+  apt:
+    sources:
+      - deadsnakes
+    packages:
+      - libdbus-1-dev
+      - musl-tools
+      - fakeroot
+      - python3.6-dev
+      - libcurl4-openssl-dev
+      - libelf-dev
+      - libdw-dev
+      - cmake
+      - gcc
+      - binutils-dev
+      - libiberty-dev
+
+
+env:
+  global:
+    - CRATE_NAME=orkhon
+
+matrix:
+  fast_finish: true
+  include:
+    # Linux
+    - env: TARGET=x86_64-unknown-linux-gnu
+      os: linux
+      rust: nightly
+      python: 3.6
+
+    # MacOS
+    - env: TARGET=x86_64-apple-darwin
+      os: osx
+      rust: nightly
+      language: generic
+
+before_install:
+  - set -e
+  - curl https://sh.rustup.rs -sSf > rustup-init.sh
+  - sh rustup-init.sh --default-toolchain nightly -y -v
+  - export PATH="$HOME/.cargo/bin:$PATH"
+  - rustup self update
+  - |
+    if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      pip uninstall numpy --yes
+      pip3 uninstall numpy --yes
+      sudo pip3 install numpy --upgrade --ignore-installed
+      python3.6 -m pip install tensorflow opencv-python
+    fi
+  - |
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      python3.6 -m pip install numpy tensorflow opencv-python
+      export LD_LIBRARY_PATH=/opt/pyenv/versions/3.6.7/lib:$LD_LIBRARY_PATH
+    fi
+
+install:
+  - source ~/.cargo/env || true
+
+script:
+  - bash ci/script.sh
+
+after_script: set +e
+
+before_deploy:
+  - sh ci/before_deploy.sh
+
+deploy:
+  # TODO update `api_key.secure`
+  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
+  # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
+  # - Paste the output down here
+  api_key:
+    secure: "hvfU3R+F6N2PTonJlnS7dkQULZHyDLesezMJB0GJh+goYdatcj66F1vNxlWjwZpL9ZN+fLjml9Qv0QKTci4OU33CCSdJ/xL4N6/ZND2CLziaX1OPeMlEhBJkYt8xn5HiV/eLAWovpIsQVlU5b6eDMzypar3v7NQGYsVbRuIplSE2QnWK3wbVbYfhj6leaI7RU/WlT2+z5hbk0ncO4E5oY2A/ef4Mp+k9nLmES7pnwDMhV+n8Zc8LI24vRgAlTDV/mBJcHrmYir97xhEC6e8CteuYjajD+wiKRgwiozkNzf8fZzxD+B78ucCbINpSfwfdQjJOa7gXkooc4tEbTI/nW9UvxLajXy5glVRkTGS/toS1INW83FVr3sdOrFANaayWlHVbVxWfYWAJ042UF+Q3vwXPzqlpvOTbW7K1C4V7Y8BzezOVrvHr/NKfW2h5RgSyyVjVdnH00qAnMQEMivmCbfY/w8sCiwUtD4CaHZ2Z+BDUUtO7HsejI8YoP7aGVcRrnlzBqg8J+vnvTzmUPeBoXDw3LOdjfUdjXFk82MmTwZM1lweHKpbpU5hJHAXP/QUJ+OHhRqHiplD1XP2+iuVEq7wcvslngBiUvdmyIouYj1blKsTl2OHGsjXtnm9DH5fpB5ojjXb9LuV2E4uBqvQhDpoL/1p7+7WM5/qegJsIqXg="
+  file_glob: true
+  file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
+  on:
+    # TODO Here you can pick which targets will generate binary releases
+    # In this example, there are some targets that are tested using the stable
+    # and nightly channels. This condition makes sure there is only one release
+    # for such targets and that's generated using the stable channel
+    condition: $DEPLOY = never
+    tags: true
+  provider: releases
+  skip_cleanup: true
+
+cache: cargo
+before_cache:
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
+branches:
+  only:
+    # release tags
+    - /^v\d+\.\d+\.\d+.*$/
+    - master
+
+notifications:
+  email:
+    on_success: never

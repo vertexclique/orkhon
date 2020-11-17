@@ -1,0 +1,4 @@
+ignore = [
+    "examples/concurrent_onnx_model.rs",
+    "examples/onnx_model.rs",
+]
