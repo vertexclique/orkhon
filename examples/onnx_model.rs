@@ -1,3 +1,9 @@
+use orkhon::prelude::*;
+use orkhon::tcore::prelude::*;
+use orkhon::ttensor::prelude::*;
+use rand::*;
+use std::path::PathBuf;
+
 #[cfg(feature = "onnxmodel")]
 fn main() {
     let _ = env_logger::builder().is_test(true).try_init();
