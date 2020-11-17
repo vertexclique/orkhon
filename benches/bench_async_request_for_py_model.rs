@@ -1,6 +1,4 @@
-#![feature(async_await, test)]
-
-extern crate test;
+// extern crate test;
 
 // #[macro_use]
 // extern crate static_assertions;

@@ -32,18 +32,24 @@ exclude = [
 travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
 maintenance = { status = "actively-developed" }
 
+[features]
+default = []
+pymodel = ["pyo3"]
+
 [dependencies]
+cfg-if = "1.0.0"
 log = "0.4.6"
 env_logger = "0.6.1"
 bytes = "0.4"
 thiserror = "1.0"
 
 # Backend dependencies
-pyo3 = "0.12"
+pyo3 = { version = "0.12", optional = true }
 tract-core = "0.11"
 tract-tensorflow = { version = "0.11", features = ["conform"] }
 smallvec = "1.4"
 futures = "0.3"
+async-trait = "0.1"
 
 [dev-dependencies]
 nuclei = "0.1.2-alpha.1"

@@ -1,5 +1,3 @@
-use crate::errors::*;
-
 #[macro_export]
 macro_rules! request_sync_for {
     ( $( $services:expr, $model_name:expr, $request:expr ),* ) => {

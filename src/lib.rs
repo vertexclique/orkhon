@@ -134,7 +134,9 @@
 //! [CONTRIBUTING guide]: https://github.com/vertexclique/orkhon/blob/master/.github/CONTRIBUTING.md
 //! [Gitter]: https://gitter.im/orkhonml/community
 
-#![doc(html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/vertexclique/orkhon/master/doc/logo/icon.png"
+)]
 
 pub mod config;
 // TODO: Refactor to the latest

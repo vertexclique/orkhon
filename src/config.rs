@@ -6,12 +6,9 @@ pub struct OrkhonConfig {
     pub input_facts_shape: Option<InferenceFact>,
 }
 
-
 impl OrkhonConfig {
     pub fn new() -> Self {
-        OrkhonConfig {
-            ..Self::default()
-        }
+        OrkhonConfig { ..Self::default() }
     }
 
     pub fn with_auto_load_input_facts(mut self) -> Self {
