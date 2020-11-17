@@ -1,3 +1,6 @@
+//!
+//! Orkhon configuration structure
+
 use tract_tensorflow::tract_hir::infer::InferenceFact;
 
 #[derive(Default, Clone)]

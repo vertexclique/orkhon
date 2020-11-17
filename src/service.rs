@@ -1,3 +1,6 @@
+//!
+//! Asynchronous service traits for serving ML models
+
 use crate::errors::*;
 use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse};
 use async_trait::async_trait;

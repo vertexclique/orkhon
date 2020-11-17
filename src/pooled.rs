@@ -1,3 +1,6 @@
+//!
+//! Python Pooled model interface
+
 use crate::config::OrkhonConfig;
 use crate::errors::*;
 use crate::reqrep::{ORequest, OResponse, PyModelRequest};

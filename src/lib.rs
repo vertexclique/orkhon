@@ -103,28 +103,29 @@
 //! use rand::*;
 //! use std::path::PathBuf;
 //!
-//!     let o = Orkhon::new()
-//!         .config(
-//!             OrkhonConfig::new()
-//!                 .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
-//!         )
-//!         .onnx(
-//!             "model_which_will_be_tested",
-//!             PathBuf::from("tests/protobuf/onnx_model/example.onnx"),
-//!         )
-//!         .build();
+//! let o = Orkhon::new()
+//!     .config(
+//!         OrkhonConfig::new()
+//!             .with_input_fact_shape(
+//!                 InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+//!     )
+//!     .onnx(
+//!         "model_which_will_be_tested",
+//!         PathBuf::from("tests/protobuf/onnx_model/example.onnx"),
+//!     )
+//!     .build();
 //!
-//!     let mut rng = thread_rng();
-//!     let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
-//!     let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+//! let mut rng = thread_rng();
+//! let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+//! let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
 //!
-//!     let resp = o
-//!         .onnx_request(
-//!             "model_which_will_be_tested",
-//!             ORequest::with_body(ONNXRequest::new().body(input.into())),
-//!         )
-//!         .unwrap();
-//!     assert_eq!(resp.body.output.len(), 1);
+//! let resp = o
+//!     .onnx_request(
+//!         "model_which_will_be_tested",
+//!         ORequest::with_body(ONNXRequest::new().body(input.into())),
+//!     )
+//!     .unwrap();
+//! assert_eq!(resp.body.output.len(), 1);
 //! ```
 //!
 //! ## License
@@ -172,6 +173,7 @@ pub mod orkhon;
 pub use tract_core as tcore;
 pub use tract_tensorflow as ttensor;
 
+/// Prelude for Orkhon
 pub mod prelude {
     pub use super::config::*;
     pub use super::reqrep::*;

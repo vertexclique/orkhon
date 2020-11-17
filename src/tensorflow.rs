@@ -1,3 +1,6 @@
+//!
+//! Tensorflow model interface
+
 use crate::errors::*;
 use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse};
 use crate::service::{Service, TensorflowAsyncService};

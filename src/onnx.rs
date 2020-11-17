@@ -1,3 +1,6 @@
+//!
+//! ONNX model interface
+
 use crate::errors::*;
 use crate::reqrep::{ONNXRequest, ONNXResponse, ORequest, OResponse};
 use crate::service::{ONNXAsyncService, Service};

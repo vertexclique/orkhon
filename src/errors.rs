@@ -1,3 +1,6 @@
+//!
+//! Error types for Orkhon
+
 use std::result;
 use thiserror::Error;
 
