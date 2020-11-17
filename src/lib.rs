@@ -139,11 +139,15 @@
 )]
 
 pub mod config;
-// TODO: Refactor to the latest
-// pub mod pooled;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "pymodel")] {
+        pub mod pooled;
+    }
+}
 pub mod reqrep;
 pub mod service;
 pub mod tensorflow;
+pub mod onnx;
 
 #[macro_use]
 mod service_macros;
