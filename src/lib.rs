@@ -12,6 +12,8 @@
 //! * Easily embeddable engine for well-known Rust web frameworks.
 //! * API contract for interacting with Python code.
 //! * High processing throughput
+//!     * ~4.8361 GiB/s prediction throughput
+//!     * 3_000 concurrent requests takes ~4ms on average
 //!
 //! ## Installation
 //!

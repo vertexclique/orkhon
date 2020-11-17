@@ -1,22 +1,21 @@
 #[macro_use]
 extern crate criterion;
-use criterion::{Criterion, Benchmark};
+use criterion::{Benchmark, Criterion};
 
 use criterion::*;
 
 extern crate orkhon;
-use futures::future::join_all;
+use futures_util::future::join_all;
+use nuclei::join_handle::JoinHandle;
 use nuclei::prelude::*;
 use orkhon::prelude::*;
 use orkhon::tcore::ndarray::ArrayBase;
 use orkhon::tcore::prelude::*;
 use orkhon::ttensor::prelude::*;
-use rand::*;
-use std::path::PathBuf;
-use nuclei::join_handle::JoinHandle;
 use rand::thread_rng;
+use rand::*;
 use rayon::prelude::*;
-
+use std::path::PathBuf;
 
 fn bench_onnx(c: &mut Criterion) {
     let o = Orkhon::new()
@@ -57,7 +56,8 @@ fn bench_onnx(c: &mut Criterion) {
                             o.onnx_request_async(
                                 "onnx_model",
                                 ORequest::with_body(ONNXRequest::new().body(input.into())),
-                            ).await
+                            )
+                            .await
                         };
                         spawn(processor)
                     })
