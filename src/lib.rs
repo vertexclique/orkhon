@@ -19,12 +19,14 @@
 //!
 //! ```toml
 //! [dependencies]
-//! orkhon = "*"
+//! orkhon = "0.2"
 //! ```
 //!
 //! ## Dependencies
 //! You will need:
 //! * If you use `pymodel` feature, Python dev dependencies should be installed and have proper python runtime to use Orkhon with your project.
+//! * If you want to have tensorflow inference. Installing tensorflow as library for linking is required.
+//! * ONNX interface doesn't need extra dependencies from the system side.
 //! * Point out your `PYTHONHOME` environment variable to your Python installation.
 //!
 //! ## Python API contract
@@ -54,14 +56,75 @@
 //! Auto conversion methods soon will be added.
 //!
 //! ## Examples
-//! #### Creating Orkhon
+//! #### Request a Tensorflow prediction asynchronously
 //!
-//! ```
+//! ```no_run
+//! # use nuclei::prelude::*;
+//! use orkhon::prelude::*;
+//! use orkhon::tcore::prelude::*;
+//! use orkhon::ttensor::prelude::*;
+//! use rand::*;
+//! use std::path::PathBuf;
+//!
+//!let o = Orkhon::new()
+//!    .config(
+//!        OrkhonConfig::new()
+//!            .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+//!    )
+//!    .tensorflow(
+//!        "model_which_will_be_tested",
+//!        PathBuf::from("tests/protobuf/manual_input_infer/my_model.pb"),
+//!    )
+//!    .shareable();
+//!
+//!let mut rng = thread_rng();
+//!let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+//!let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+//!
+//!let o = o.get();
+//!let handle = async move {
+//!    let processor = o.tensorflow_request_async(
+//!       "model_which_will_be_tested",
+//!       ORequest::with_body(TFRequest::new().body(input.into())),
+//!    );
+//!    processor.await
+//!};
+//!let resp = block_on(handle).unwrap();
 //! ```
 //!
-//! #### Requesting to Orkhon
+//! #### Request an ONNX prediction synchronously
 //!
-//! ```
+//! This example needs `onnxmodel` feature enabled.
+//!
+//! ```ignore
+//! use orkhon::prelude::*;
+//! use orkhon::tcore::prelude::*;
+//! use orkhon::ttensor::prelude::*;
+//! use rand::*;
+//! use std::path::PathBuf;
+//!
+//!     let o = Orkhon::new()
+//!         .config(
+//!             OrkhonConfig::new()
+//!                 .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+//!         )
+//!         .onnx(
+//!             "model_which_will_be_tested",
+//!             PathBuf::from("tests/protobuf/onnx_model/example.onnx"),
+//!         )
+//!         .build();
+//!
+//!     let mut rng = thread_rng();
+//!     let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+//!     let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+//!
+//!     let resp = o
+//!         .onnx_request(
+//!             "model_which_will_be_tested",
+//!             ORequest::with_body(ONNXRequest::new().body(input.into())),
+//!         )
+//!         .unwrap();
+//!     assert_eq!(resp.body.output.len(), 1);
 //! ```
 //!
 //! ## License
