@@ -102,12 +102,28 @@ pub mod tensorflow;
 pub mod config;
 pub mod reqrep;
 pub mod service;
-
-#[macro_use]
-mod service_macros;
 pub mod errors;
 
 pub mod orkhon;
 
 pub use tract_core as tcore;
 pub use tract_tensorflow as ttensor;
+
+pub mod prelude {
+    pub use super::config::*;
+    pub use super::reqrep::*;
+
+    pub use super::tensorflow::*;
+    pub use super::tcore::*;
+    pub use super::ttensor::*;
+
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "pymodel")] {
+            pub use super::pooled::*;
+        } else if #[cfg(feature = "onnxmodel")] {
+            pub use super::onnx::*;
+        }
+    }
+
+    pub use super::orkhon::*;
+}

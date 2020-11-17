@@ -75,7 +75,7 @@ impl Service for ONNXModel {
 #[async_trait]
 impl ONNXAsyncService for ONNXModel {
     async fn async_process(
-        &mut self,
+        &self,
         request: ORequest<ONNXRequest>,
     ) -> Result<OResponse<ONNXResponse>> {
         self.process(request)

@@ -100,6 +100,12 @@ cfg_if::cfg_if! {
                     ..Default::default()
                 }
             }
+
+            /// Append body to the ONNX request
+            pub fn body(mut self, request: Tensor) -> Self {
+                self.input = request;
+                self
+            }
         }
 
         /// ONNX response
@@ -137,6 +143,12 @@ impl TFRequest {
         TFRequest {
             ..Default::default()
         }
+    }
+
+    /// Append body to the tensorflow request
+    pub fn body(mut self, request: Tensor) -> Self {
+        self.input = request;
+        self
     }
 }
 

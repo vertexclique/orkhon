@@ -9,7 +9,7 @@ pub(crate) trait Service {
 #[async_trait]
 pub(crate) trait TensorflowAsyncService {
     async fn async_process(
-        &mut self,
+        &self,
         request: ORequest<TFRequest>,
     ) -> Result<OResponse<TFResponse>>;
 }
@@ -25,7 +25,7 @@ cfg_if::cfg_if! {
         #[async_trait]
         pub(crate) trait PythonAsyncService {
             async fn async_process<K: 'static, V: 'static, T: 'static>(
-                &mut self,
+                &self,
                 request: ORequest<PyModelRequest<K, V, T>>,
             ) -> Self::FutType
             where
@@ -39,7 +39,7 @@ cfg_if::cfg_if! {
         #[async_trait]
         pub(crate) trait ONNXAsyncService {
             async fn async_process(
-                &mut self,
+                &self,
                 request: ORequest<ONNXRequest>,
             ) -> Result<OResponse<ONNXResponse>>;
         }

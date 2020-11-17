@@ -1,9 +1,9 @@
 use orkhon::config::OrkhonConfig;
 use orkhon::orkhon::Orkhon;
 use std::path::PathBuf;
-use tract_core::prelude::*;
-use tract_core::tract_data::prelude::Datum;
-use tract_tensorflow::tract_hir::infer::InferenceFact;
+use orkhon::tcore::prelude::*;
+use orkhon::tcore::tract_data::prelude::Datum;
+use orkhon::ttensor::prelude::*;
 
 fn init() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -73,7 +73,10 @@ fn build_manual_input_tf_model() {
         .build();
 }
 
+
+
 #[test]
+#[cfg(feature = "onnxmodel")]
 fn build_manual_input_onnx_model() {
     init();
     // If you want to infer input tensor shapes you need to use the saved model in directory coming out of `model.save()`.
@@ -92,22 +95,24 @@ fn build_manual_input_onnx_model() {
         .build();
 }
 
-// #[test]
-// fn build_configured_python_model() {
-//     init();
-//
-//     Orkhon::new()
-//         .config(OrkhonConfig::new())
-//         .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
-//         .build();
-// }
-//
-// #[test]
-// fn sync_request_python_model() {
-//     init();
-//
-//     Orkhon::new()
-//         .config(OrkhonConfig::new())
-//         .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
-//         .build();
-// }
+#[test]
+#[cfg(feature = "pymodel")]
+fn build_configured_python_model() {
+    init();
+
+    Orkhon::new()
+        .config(OrkhonConfig::new())
+        .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
+        .build();
+}
+
+#[test]
+#[cfg(feature = "pymodel")]
+fn sync_request_python_model() {
+    init();
+
+    Orkhon::new()
+        .config(OrkhonConfig::new())
+        .pymodel("mobilenet", "tests/pymodels", "prefix", "data")
+        .build();
+}

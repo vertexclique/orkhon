@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use crate::config::OrkhonConfig;
 use crate::errors::*;
 use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse};
@@ -9,6 +8,8 @@ use crate::tensorflow::TFModel;
 use log::*;
 
 use std::path::PathBuf;
+use std::sync::Arc;
+use lever::sync::atomics::AtomicBox;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "pymodel")] {
@@ -22,7 +23,7 @@ cfg_if::cfg_if! {
 }
 
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct Orkhon {
     config: OrkhonConfig,
     tf_services: HashMap<String, TFModel>,
@@ -30,6 +31,19 @@ pub struct Orkhon {
     py_services: HashMap<String, PooledModel>,
     #[cfg(feature = "onnxmodel")]
     onnx_services: HashMap<String, ONNXModel>,
+}
+
+impl Default for Orkhon {
+    fn default() -> Self {
+        Self {
+            config: OrkhonConfig::default(),
+            tf_services: HashMap::<String, TFModel>::new(),
+            #[cfg(feature = "pymodel")]
+            py_services: HashMap::<String, PooledModel>::new(),
+            #[cfg(feature = "onnxmodel")]
+            onnx_services: HashMap::<String, ONNXModel>::new(),
+        }
+    }
 }
 
 impl Orkhon {
@@ -44,30 +58,41 @@ impl Orkhon {
         self
     }
 
-    pub fn tensorflow(mut self, model_name: &'static str, model_file: PathBuf) -> Self {
+    pub fn tensorflow<T>(mut self, model_name: T, model_file: PathBuf) -> Self
+    where
+        T: AsRef<str>
+    {
         let model_spec = TFModel::new(self.config.clone())
-            .with_name(model_name)
+            .with_name(model_name.as_ref().to_owned())
             .with_model_file(model_file);
 
-        self.tf_services.insert(model_name.to_owned(), model_spec);
+        self.tf_services.insert(model_name.as_ref().to_owned(), model_spec);
 
         self
     }
 
     pub fn tensorflow_request(
-        mut self,
+        &self,
         model_name: &str,
         request: ORequest<TFRequest>,
     ) -> Result<OResponse<TFResponse>> {
-        request_sync_for!(self.tf_services, model_name, request)
+        if let Some(modelbox) = self.tf_services.get(model_name) {
+            modelbox.process(request)
+        } else {
+            Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+        }
     }
 
     pub async fn tensorflow_request_async(
-        mut self,
+        &self,
         model_name: &str,
         request: ORequest<TFRequest>,
     ) -> Result<OResponse<TFResponse>> {
-        request_async_for!(self.tf_services, model_name, request)
+        if let Some(modelbox) = self.tf_services.get(model_name) {
+            modelbox.async_process(request).await
+        } else {
+            Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+        }
     }
 
     pub fn build(mut self) -> Self {
@@ -94,6 +119,10 @@ impl Orkhon {
         self
     }
 
+    pub fn shareable(self) -> Arc<AtomicBox<Self>> {
+        Arc::new(AtomicBox::new(self.build()))
+    }
+
     cfg_if::cfg_if! {
         if #[cfg(feature = "pymodel")] {
             pub fn pymodel(mut self,
@@ -107,7 +136,7 @@ impl Orkhon {
                     .with_module(module)
                     .with_requester_hook(requester_hook);
 
-                self.py_services.insert(model_name.to_owned(), model_spec);
+                self.py_services.insert(model_name.as_ref().to_owned(), model_spec);
 
                 self
             }
@@ -148,19 +177,27 @@ impl Orkhon {
             }
 
             pub fn onnx_request(
-                mut self,
+                &self,
                 model_name: &str,
                 request: ORequest<ONNXRequest>,
             ) -> Result<OResponse<ONNXResponse>> {
-                request_sync_for!(self.onnx_services, model_name, request)
+                if let Some(modelbox) = self.onnx_services.get(model_name) {
+                    modelbox.process(request)
+                } else {
+                    Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+                }
             }
 
             pub async fn onnx_request_async(
-                mut self,
+                &self,
                 model_name: &str,
                 request: ORequest<ONNXRequest>,
             ) -> Result<OResponse<ONNXResponse>> {
-                request_async_for!(self.onnx_services, model_name, request)
+                if let Some(modelbox) = self.onnx_services.get(model_name) {
+                    modelbox.async_process(request).await
+                } else {
+                    Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+                }
             }
         }
     }

@@ -12,9 +12,6 @@ use log::*;
 use std::{thread, cmp, hash, fs};
 use std::any::Any;
 
-use futures::channel::oneshot;
-use futures::prelude::future::FutureObj;
-
 
 #[derive(Default, Clone)]
 pub struct PooledModel {
@@ -130,7 +127,7 @@ impl PythonAsyncService for PooledModel {
     type FutType = FutureObj<'static, Result<OResponse<PyObject>>>;
 
     fn async_process<K: 'static, V: 'static, T: 'static>(
-        &mut self, request: ORequest<PyModelRequest<K, V, T>>)
+        &self, request: ORequest<PyModelRequest<K, V, T>>)
         -> FutureObj<'static, Result<OResponse<PyObject>>>
         where
             K: hash::Hash + cmp::Eq + Default + ToPyObject + Send,

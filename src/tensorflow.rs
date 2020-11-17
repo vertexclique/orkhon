@@ -46,7 +46,7 @@ impl TFModel {
 
         plan.run(tvec!(request.body.input))
             .map_err(|e| {
-                let err_msg: String = format!("Call failed\n\twith traceback {:?}", e);
+                let err_msg: String = format!("Call failed: {:?}", e);
                 OrkhonError::RequestError(err_msg.to_owned())
             })
             .map(|result| OResponse::with_body(TFResponse::new().with_output(result)))
@@ -157,7 +157,7 @@ impl Service for TFModel {
 #[async_trait]
 impl TensorflowAsyncService for TFModel {
     async fn async_process(
-        &mut self,
+        &self,
         request: ORequest<TFRequest>,
     ) -> Result<OResponse<TFResponse>> {
         self.process(request)

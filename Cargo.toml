@@ -43,6 +43,7 @@ log = "0.4.6"
 env_logger = "0.6.1"
 bytes = "0.4"
 thiserror = "1.0"
+lever = "0.1.1-alpha.11"
 
 # Backend dependencies
 pyo3 = { version = "0.12", optional = true }
@@ -55,6 +56,8 @@ async-trait = "0.1"
 
 [dev-dependencies]
 nuclei = "0.1.2-alpha.1"
+rand = "0.7.3"
+rayon = "1.5"
 
 [profile.bench]
 opt-level = 3
