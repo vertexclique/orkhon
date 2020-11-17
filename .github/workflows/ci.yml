@@ -15,7 +15,6 @@ jobs:
           - x86_64-apple-darwin
         version:
           - stable
-          - nightly
         include:
           - toolchain: x86_64-pc-windows-msvc
             os: windows-latest
