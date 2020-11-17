@@ -69,4 +69,5 @@ codegen-units = 1
 
 [[bench]]
 name = "onnx_benches"
+path = "benches/onnx_benches.rs"
 harness = false
