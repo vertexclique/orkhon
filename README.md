@@ -30,8 +30,8 @@
 <tr>
   <td>Build Status</td>
   <td>
-    <a href="https://travis-ci.org/vertexclique/orkhon">
-    <img src="https://travis-ci.org/vertexclique/orkhon.svg?branch=master" alt="travis build status" />
+    <a href="https://github.com/vertexclique/orkhon/actions">
+    <img alt="Build Status" src="https://github.com/vertexclique/orkhon/workflows/CI/badge.svg" />
     </a>
   </td>
 </tr>
