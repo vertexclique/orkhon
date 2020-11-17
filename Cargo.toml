@@ -58,6 +58,7 @@ async-trait = "0.1"
 nuclei = "0.1.2-alpha.1"
 rand = "0.7.3"
 rayon = "1.5"
+criterion = "0.3"
 
 [profile.bench]
 opt-level = 3
@@ -66,3 +67,7 @@ rpath = false
 lto = false
 debug-assertions = false
 codegen-units = 1
+
+[[bench]]
+name = "onnx_benches"
+harness = false

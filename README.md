@@ -63,6 +63,8 @@ Orkhon is Rust framework for Machine Learning to run/use inference/prediction co
 * Easily embeddable engine for well-known Rust web frameworks.
 * API contract for interacting with Python code.
 * High processing throughput
+    * ~4.8361 GiB/s prediction throughput
+    * 3_000 concurrent requests takes ~4ms on average 
 * Python Module caching
 
 ## Installation
@@ -71,7 +73,7 @@ You can include Orkhon into your project with;
 
 ```toml
 [dependencies]
-orkhon = "*"
+orkhon = "0.2"
 ```
 
 ## Dependencies
@@ -84,41 +86,75 @@ You will need:
 
 For Python API contract you can take a look at the [Project Documentation](https://docs.rs/orkhon).
 
-## Examples
-#### Minimal Async Model Request Example
+ ## Examples
+ #### Request a Tensorflow prediction asynchronously
 
 ```rust
+ use orkhon::prelude::*;
+ use orkhon::tcore::prelude::*;
+ use orkhon::ttensor::prelude::*;
+ use rand::*;
+ use std::path::PathBuf;
+
 let o = Orkhon::new()
-    .config(OrkhonConfig::new())
-    .pymodel("model_which_will_be_tested", // Unique identifier of the model
-             "tests/pymodels",             // Python module directory
-             "model_test",                 // Python module file name
-        "model_hook"                       // Hook(Python method) that will be called by Orkhon
+    .config(
+        OrkhonConfig::new()
+            .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
     )
-    .build();
-
-// Args for the request hook
-let mut request_args = HashMap::new();
-request_args.insert("is", 10);
-request_args.insert("are", 6);
-request_args.insert("you", 5);
-
-// Kwargs for the request hook
-let mut request_kwargs = HashMap::<&str, &str>::new();
-
-// Future handle
-let handle =
-    o.pymodel_request_async(
+    .tensorflow(
         "model_which_will_be_tested",
-        ORequest::with_body(
-            PyModelRequest::new()
-                .with_args(request_args)
-                .with_kwargs(request_kwargs)
-        )
-    );
+        PathBuf::from("tests/protobuf/manual_input_infer/my_model.pb"),
+    )
+    .shareable();
 
-// Return the result
-handle.await.unwrap()
+let mut rng = thread_rng();
+let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+
+let o = o.get();
+let handle = async move {
+    let processor = o.tensorflow_request_async(
+       "model_which_will_be_tested",
+       ORequest::with_body(TFRequest::new().body(input.into())),
+    );
+    processor.await
+};
+let resp = block_on(handle).unwrap();
+```
+
+ #### Request an ONNX prediction synchronously
+
+This example needs `onnxmodel` feature enabled.
+
+```rust
+use orkhon::prelude::*;
+use orkhon::tcore::prelude::*;
+use orkhon::ttensor::prelude::*;
+use rand::*;
+use std::path::PathBuf;
+
+ let o = Orkhon::new()
+     .config(
+         OrkhonConfig::new()
+             .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+     )
+     .onnx(
+         "model_which_will_be_tested",
+         PathBuf::from("tests/protobuf/onnx_model/example.onnx"),
+     )
+     .build();
+
+ let mut rng = thread_rng();
+ let vals: Vec<_> = (0..1000).map(|_| rng.gen::<f32>()).collect();
+ let input = tract_ndarray::arr1(&vals).into_shape((10, 100)).unwrap();
+
+ let resp = o
+     .onnx_request(
+         "model_which_will_be_tested",
+         ORequest::with_body(ONNXRequest::new().body(input.into())),
+     )
+     .unwrap();
+ assert_eq!(resp.body.output.len(), 1);
 ```
 
 ## License
