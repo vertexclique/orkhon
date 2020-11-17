@@ -8,23 +8,27 @@ pub enum Types {
     TFModel,
 }
 
+/// Orkhon request container
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct ORequest<T> {
     pub body: T,
 }
 
 impl<T> ORequest<T> {
+    /// Orkhon request container that takes backend specific response
     pub fn with_body(body: T) -> Self {
         ORequest { body }
     }
 }
 
+/// Orkhon response container
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct OResponse<T> {
     pub body: T,
 }
 
 impl<T> OResponse<T> {
+    /// Orkhon response container that takes backend specific response
     pub fn with_body(body: T) -> Self {
         OResponse { body }
     }
@@ -85,12 +89,14 @@ cfg_if::cfg_if! {
     }
 }
 
+/// Tensorflow request
 #[derive(Default, Debug)]
 pub struct TFRequest {
     pub input: Tensor,
 }
 
 impl TFRequest {
+    /// Creates a new tensorflow inference request
     pub fn new() -> Self {
         TFRequest {
             ..Default::default()
@@ -98,18 +104,57 @@ impl TFRequest {
     }
 }
 
+/// Tensorflow response
 #[derive(Default, Debug)]
 pub struct TFResponse {
     pub output: SmallVec<[Arc<Tensor>; 4]>,
 }
 
 impl TFResponse {
+    /// Creates a new tensorflow inference response
     pub fn new() -> Self {
         TFResponse {
             ..Default::default()
         }
     }
 
+    /// Give output coming out from tensorflow
+    pub fn with_output(mut self, output: SmallVec<[Arc<Tensor>; 4]>) -> Self {
+        self.output = output;
+        self
+    }
+}
+
+/// ONNX request
+#[derive(Default, Debug)]
+pub struct ONNXRequest {
+    pub input: Tensor,
+}
+
+impl ONNXRequest {
+    /// Creates a new ONNX inference request
+    pub fn new() -> Self {
+        ONNXRequest {
+            ..Default::default()
+        }
+    }
+}
+
+/// ONNX response
+#[derive(Default, Debug)]
+pub struct ONNXResponse {
+    pub output: SmallVec<[Arc<Tensor>; 4]>,
+}
+
+impl ONNXResponse {
+    /// Creates a new ONNX inference response
+    pub fn new() -> Self {
+        ONNXResponse {
+            ..Default::default()
+        }
+    }
+
+    /// Give output coming out from ONNX
     pub fn with_output(mut self, output: SmallVec<[Arc<Tensor>; 4]>) -> Self {
         self.output = output;
         self
