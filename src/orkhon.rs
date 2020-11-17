@@ -1,15 +1,15 @@
-use std::collections::HashMap;
 use crate::config::OrkhonConfig;
 use crate::errors::*;
 use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse};
 use crate::service::{Service, TensorflowAsyncService};
 use crate::tensorflow::TFModel;
+use std::collections::HashMap;
 
 use log::*;
 
+use lever::sync::atomics::AtomicBox;
 use std::path::PathBuf;
 use std::sync::Arc;
-use lever::sync::atomics::AtomicBox;
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "pymodel")] {
@@ -21,7 +21,6 @@ cfg_if::cfg_if! {
         use crate::reqrep::{ONNXRequest, ONNXResponse};
     }
 }
-
 
 #[derive(Clone)]
 pub struct Orkhon {
@@ -60,13 +59,14 @@ impl Orkhon {
 
     pub fn tensorflow<T>(mut self, model_name: T, model_file: PathBuf) -> Self
     where
-        T: AsRef<str>
+        T: AsRef<str>,
     {
         let model_spec = TFModel::new(self.config.clone())
             .with_name(model_name.as_ref().to_owned())
             .with_model_file(model_file);
 
-        self.tf_services.insert(model_name.as_ref().to_owned(), model_spec);
+        self.tf_services
+            .insert(model_name.as_ref().to_owned(), model_spec);
 
         self
     }

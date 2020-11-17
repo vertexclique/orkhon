@@ -1,9 +1,9 @@
 use orkhon::config::OrkhonConfig;
 use orkhon::orkhon::Orkhon;
-use std::path::PathBuf;
 use orkhon::tcore::prelude::*;
 use orkhon::tcore::tract_data::prelude::Datum;
 use orkhon::ttensor::prelude::*;
+use std::path::PathBuf;
 
 fn init() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -61,10 +61,8 @@ fn build_manual_input_tf_model() {
     // Since tf backend forces us to use "saved_model" naming. Always give a file with that name to it.
     Orkhon::new()
         .config(
-            OrkhonConfig::new().with_input_fact_shape(InferenceFact::dt_shape(
-                f32::datum_type(),
-                tvec![10, 100],
-            )),
+            OrkhonConfig::new()
+                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .tensorflow(
             "manual_input_infer",
@@ -72,8 +70,6 @@ fn build_manual_input_tf_model() {
         )
         .build();
 }
-
-
 
 #[test]
 #[cfg(feature = "onnxmodel")]
@@ -83,10 +79,8 @@ fn build_manual_input_onnx_model() {
     // Since tf backend forces us to use "saved_model" naming. Always give a file with that name to it.
     Orkhon::new()
         .config(
-            OrkhonConfig::new().with_input_fact_shape(InferenceFact::dt_shape(
-                f32::datum_type(),
-                tvec![10, 100],
-            )),
+            OrkhonConfig::new()
+                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "onnx_model",

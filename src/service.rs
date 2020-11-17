@@ -8,14 +8,8 @@ pub(crate) trait Service {
 
 #[async_trait]
 pub(crate) trait TensorflowAsyncService {
-    async fn async_process(
-        &self,
-        request: ORequest<TFRequest>,
-    ) -> Result<OResponse<TFResponse>>;
+    async fn async_process(&self, request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>>;
 }
-
-
-
 
 cfg_if::cfg_if! {
     if #[cfg(feature = "pymodel")] {

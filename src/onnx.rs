@@ -1,6 +1,6 @@
 use crate::errors::*;
-use crate::reqrep::{ORequest, OResponse, ONNXRequest, ONNXResponse};
-use crate::service::{Service, ONNXAsyncService};
+use crate::reqrep::{ONNXRequest, ONNXResponse, ORequest, OResponse};
+use crate::service::{ONNXAsyncService, Service};
 use std::path::PathBuf;
 
 use tract_core::framework::*;
@@ -29,8 +29,8 @@ impl ONNXModel {
     }
 
     pub fn with_name<T>(mut self, name: T) -> Self
-        where
-            T: AsRef<str>,
+    where
+        T: AsRef<str>,
     {
         self.name = name.as_ref().into();
         self
@@ -41,7 +41,10 @@ impl ONNXModel {
         self
     }
 
-    pub(crate) fn process(&self, request: ORequest<ONNXRequest>) -> Result<OResponse<ONNXResponse>> {
+    pub(crate) fn process(
+        &self,
+        request: ORequest<ONNXRequest>,
+    ) -> Result<OResponse<ONNXResponse>> {
         let plan = self.model.clone().into_runnable()?;
 
         plan.run(tvec!(request.body.input))
@@ -54,18 +57,16 @@ type InferenceGraph = Graph<InferenceFact, Box<dyn InferenceOp>>;
 
 impl Service for ONNXModel {
     fn load(&mut self) -> Result<()> {
-        let unoptimized: InferenceGraph =
-            tract_onnx::onnx().model_for_path(self.file.as_path())?;
+        let unoptimized: InferenceGraph = tract_onnx::onnx().model_for_path(self.file.as_path())?;
 
-        let input_loaded =
-            unoptimized.with_input_fact(
-                0,
-                self.config.input_facts_shape.to_owned().ok_or_else(|| {
-                    OrkhonError::General(
-                        "Inference shape should be given when no auto infer is in place.".into(),
-                    )
-                })?,
-            )?;
+        let input_loaded = unoptimized.with_input_fact(
+            0,
+            self.config.input_facts_shape.to_owned().ok_or_else(|| {
+                OrkhonError::General(
+                    "Inference shape should be given when no auto infer is in place.".into(),
+                )
+            })?,
+        )?;
 
         self.model = input_loaded.into_optimized()?;
         Ok(())

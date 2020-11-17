@@ -98,11 +98,11 @@ cfg_if::cfg_if! {
     }
 }
 
-pub mod tensorflow;
 pub mod config;
+pub mod errors;
 pub mod reqrep;
 pub mod service;
-pub mod errors;
+pub mod tensorflow;
 
 pub mod orkhon;
 
@@ -113,8 +113,8 @@ pub mod prelude {
     pub use super::config::*;
     pub use super::reqrep::*;
 
-    pub use super::tensorflow::*;
     pub use super::tcore::*;
+    pub use super::tensorflow::*;
     pub use super::ttensor::*;
 
     cfg_if::cfg_if! {

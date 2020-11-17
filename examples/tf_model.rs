@@ -1,21 +1,20 @@
-use rand::*;
 use orkhon::prelude::*;
 use orkhon::tcore::prelude::*;
-use std::path::PathBuf;
 use orkhon::ttensor::prelude::*;
+use rand::*;
+use std::path::PathBuf;
 
 fn main() {
     let _ = env_logger::builder().is_test(true).try_init();
 
     let o = Orkhon::new()
         .config(
-            OrkhonConfig::new().with_input_fact_shape(InferenceFact::dt_shape(
-                f32::datum_type(),
-                tvec![10, 100],
-            ))
+            OrkhonConfig::new()
+                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
-        .tensorflow("tensorflow_model",
-              PathBuf::from("tests/protobuf/manual_input_infer/my_model.pb"),
+        .tensorflow(
+            "tensorflow_model",
+            PathBuf::from("tests/protobuf/manual_input_infer/my_model.pb"),
         )
         .build();
 
@@ -25,15 +24,14 @@ fn main() {
 
     println!("\n==============\nRequesting inference with tensor to TENSORFLOW backend:\n==============\n\n{}", input);
 
-    let handle =
-        o.tensorflow_request(
-            "tensorflow_model",
-            ORequest::with_body(
-                TFRequest::new()
-                    .body(input.into())
-            )
-        );
+    let handle = o.tensorflow_request(
+        "tensorflow_model",
+        ORequest::with_body(TFRequest::new().body(input.into())),
+    );
 
     let resp = handle.unwrap();
-    println!("\n==============\nInference output:\n==============\n\n{:?}", resp.body.output);
+    println!(
+        "\n==============\nInference output:\n==============\n\n{:?}",
+        resp.body.output
+    );
 }

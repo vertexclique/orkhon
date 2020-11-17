@@ -156,10 +156,7 @@ impl Service for TFModel {
 
 #[async_trait]
 impl TensorflowAsyncService for TFModel {
-    async fn async_process(
-        &self,
-        request: ORequest<TFRequest>,
-    ) -> Result<OResponse<TFResponse>> {
+    async fn async_process(&self, request: ORequest<TFRequest>) -> Result<OResponse<TFResponse>> {
         self.process(request)
     }
 }
