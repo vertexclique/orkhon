@@ -78,10 +78,10 @@ orkhon = "0.2"
 
 ## Dependencies
 You will need:
-* Rust Nightly needed (for now. until async support fully lands in)
-* Python dev dependencies installed and have proper python runtime to use Orkhon with your project.
+* If you use `pymodel` feature, Python dev dependencies should be installed and have proper python runtime to use Orkhon with your project.
+* If you want to have tensorflow inference. Installing tensorflow as library for linking is required.
+* ONNX interface doesn't need extra dependencies from the system side.
 * Point out your `PYTHONHOME` environment variable to your Python installation.
-
 ## Python API contract
 
 For Python API contract you can take a look at the [Project Documentation](https://docs.rs/orkhon).
