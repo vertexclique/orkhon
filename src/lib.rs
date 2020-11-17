@@ -148,3 +148,6 @@ mod service_macros;
 pub mod errors;
 
 pub mod orkhon;
+
+pub use tract_core as tcore;
+pub use tract_tensorflow as ttensor;

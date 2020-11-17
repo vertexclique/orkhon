@@ -30,7 +30,7 @@ impl Orkhon {
     }
 
     pub fn tensorflow(mut self, model_name: &'static str, model_file: PathBuf) -> Self {
-        let model_spec = TFModel::new()
+        let model_spec = TFModel::new(self.config.clone())
             .with_name(model_name)
             .with_model_file(model_file);
 
