@@ -14,7 +14,7 @@ fn test_sync_request_for_tensorflow_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .tensorflow(
             "model_which_will_be_tested",
@@ -46,7 +46,7 @@ fn test_sync_request_for_onnx_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "model_which_will_be_tested",
@@ -76,7 +76,7 @@ fn test_async_request_for_tensorflow_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .tensorflow(
             "model_which_will_be_tested",
@@ -112,7 +112,7 @@ fn test_async_request_for_onnx_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "model_which_will_be_tested",

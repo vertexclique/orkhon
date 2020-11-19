@@ -64,7 +64,7 @@ impl Service for ONNXModel {
 
         let input_loaded = unoptimized.with_input_fact(
             0,
-            self.config.input_facts_shape.to_owned().ok_or_else(|| {
+            self.config.default_input_fact_shape.to_owned().ok_or_else(|| {
                 OrkhonError::General(
                     "Inference shape should be given when no auto infer is in place.".into(),
                 )

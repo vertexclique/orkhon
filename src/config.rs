@@ -6,7 +6,7 @@ use tract_tensorflow::tract_hir::infer::InferenceFact;
 #[derive(Default, Clone)]
 pub struct OrkhonConfig {
     pub auto_load_input_facts: bool,
-    pub input_facts_shape: Option<InferenceFact>,
+    pub default_input_fact_shape: Option<InferenceFact>,
 }
 
 impl OrkhonConfig {
@@ -19,8 +19,8 @@ impl OrkhonConfig {
         self
     }
 
-    pub fn with_input_fact_shape(mut self, inference_shape: InferenceFact) -> Self {
-        self.input_facts_shape = Option::from(inference_shape);
+    pub fn with_default_input_fact_shape(mut self, inference_shape: InferenceFact) -> Self {
+        self.default_input_fact_shape = Option::from(inference_shape);
         self
     }
 }

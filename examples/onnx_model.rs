@@ -11,7 +11,7 @@ fn main() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "onnx_model",
