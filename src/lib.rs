@@ -165,6 +165,7 @@ cfg_if::cfg_if! {
 }
 
 pub mod config;
+pub mod preprocessing;
 pub mod errors;
 pub mod reqrep;
 pub mod service;
