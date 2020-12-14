@@ -122,6 +122,12 @@ impl Orkhon {
         self
     }
 
+    ///
+    /// Returns a frozen state of the internal model storage
+    pub fn frozen_state(&self) -> Orkhon {
+        self.clone()
+    }
+
     pub fn shareable(self) -> Arc<AtomicBox<Self>> {
         Arc::new(AtomicBox::new(self.build()))
     }
