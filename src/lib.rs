@@ -165,6 +165,7 @@ cfg_if::cfg_if! {
 }
 
 pub mod config;
+pub mod preprocessing;
 pub mod errors;
 pub mod reqrep;
 pub mod service;
@@ -179,6 +180,7 @@ pub use tract_tensorflow as ttensor;
 pub mod prelude {
     pub use super::config::*;
     pub use super::reqrep::*;
+    pub use super::preprocessing::*;
 
     pub use super::tcore::*;
     pub use super::tensorflow::*;

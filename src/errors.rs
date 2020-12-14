@@ -11,6 +11,8 @@ pub type Result<T> = result::Result<T, OrkhonError>;
 pub enum OrkhonError {
     #[error("Orkhon: General Error: {0}")]
     General(String),
+    #[error("Orkhon: Preprocessing Error: {0}")]
+    Preprocessing(String),
     #[error("Orkhon: Model Not Found Error: {0}")]
     ModelNotFound(String),
     #[error("Orkhon: Request Error: {0}")]
