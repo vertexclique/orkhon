@@ -43,7 +43,7 @@ cfg-if = "1.0.0"
 log = "0.4.6"
 env_logger = "0.6.1"
 thiserror = "1.0"
-lever = {path = "../lever"}
+lever = "0.1.1-alpha.11"
 
 # Backend dependencies
 pyo3 = { version = "0.12", optional = true }

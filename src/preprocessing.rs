@@ -33,7 +33,7 @@ where
         x.into_iter().for_each(|e| {
             match self.seen.entry(e.to_owned()) {
                 Entry::Vacant(_) => {
-                    let entry_key = self.encoded.len()+1;
+                    let entry_key = self.encoded.len();
                     self.encoded.push(entry_key);
                     self.seen.insert(e, entry_key);
                 }
