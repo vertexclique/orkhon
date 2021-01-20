@@ -30,6 +30,8 @@ where
         self.seen.clear();
         self.encoded.clear();
         self.categories.clear();
+        let mut x = x;
+        x.sort();
         x.into_iter().for_each(|e| {
             match self.seen.entry(e.to_owned()) {
                 Entry::Vacant(_) => {
@@ -40,7 +42,7 @@ where
                 _ => {}
             }
         });
-        let seen = self.seen.iter().sorted_by(|a, b| a.0.cmp(&b.0)).map(|e| e.0.clone()).collect::<Vec<I>>();
+        let seen = self.seen.iter().sorted_by(|a, b| a.1.cmp(&b.1)).map(|e| e.0.clone()).collect::<Vec<I>>();
         self.categories = seen;
 
         self
@@ -88,6 +90,16 @@ mod tests_preprocessing {
 
         assert_eq!(enc.transform(vec!["Nonbinary", "Nonbinary", "Female"]).unwrap(), vec![2, 2, 0]);
         assert_eq!(enc.transform(vec!["Male", "Nonbinary", "Female"]).unwrap(), vec![1, 2, 0]);
+    }
+
+    #[test]
+    fn test_ordinal_encoder_pi() {
+        let data = vec!["Create Opp", "Log Activity: T", "Create L", "Log Activity: C", "Log Activity: E", "Assign L"];
+        let enc = OrdinalEncoder::new();
+
+        let enc = enc.fit(data.clone());
+
+        assert_eq!(enc.transform(data).unwrap(), vec![2, 5, 1, 3, 4, 0]);
     }
 
     #[test]
