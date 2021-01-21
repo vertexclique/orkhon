@@ -14,11 +14,13 @@ use crate::config::OrkhonConfig;
 
 use async_trait::async_trait;
 use tract_tensorflow::tract_hir::infer::InferenceOp;
+use std::io::Cursor;
 
 #[derive(Default, Clone)]
 pub struct ONNXModel {
     pub name: String,
     pub file: PathBuf,
+    pub data: Option<Vec<u8>>,
     config: OrkhonConfig,
     model: TypedModel,
 }
@@ -44,6 +46,11 @@ impl ONNXModel {
         self
     }
 
+    pub fn with_model_data(mut self, model_data: &[u8]) -> Self {
+        self.data = Some(model_data.to_vec());
+        self
+    }
+
     pub(crate) fn process(
         &self,
         request: ORequest<ONNXRequest>,
@@ -60,7 +67,13 @@ type InferenceGraph = Graph<InferenceFact, Box<dyn InferenceOp>>;
 
 impl Service for ONNXModel {
     fn load(&mut self) -> Result<()> {
-        let unoptimized: InferenceGraph = tract_onnx::onnx().model_for_path(self.file.as_path())?;
+        let unoptimized: InferenceGraph = match &self.data {
+            Some(d) => {
+                let mut d = Cursor::new(d);
+                tract_onnx::onnx().model_for_read(&mut d)?
+            },
+            _ => tract_onnx::onnx().model_for_path(self.file.as_path())?
+        };
 
         let input_loaded = unoptimized.with_input_fact(
             0,
