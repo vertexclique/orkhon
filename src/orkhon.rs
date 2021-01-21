@@ -185,6 +185,19 @@ impl Orkhon {
                 self
             }
 
+            pub fn onnx_from_bytes<T>(mut self, model_name: T, model_data: &[u8]) -> Self
+            where
+                T: AsRef<str>
+            {
+                let model_spec = ONNXModel::new(self.config.clone())
+                    .with_name(model_name.as_ref().to_owned())
+                    .with_model_data(model_data);
+
+                self.onnx_services.insert(model_name.as_ref().to_owned(), model_spec);
+
+                self
+            }
+
             pub fn onnx_request(
                 &self,
                 model_name: &str,
