@@ -161,6 +161,10 @@ cfg_if::cfg_if! {
         pub mod pooled;
     } else if #[cfg(feature = "onnxmodel")] {
         pub mod onnx;
+        pub use tract_onnx as ttensor;
+    } else if #[cfg(feature = "tfmodel")] {
+        pub mod tensorflow;
+        pub use tract_tensorflow as ttensor;
     }
 }
 
@@ -169,12 +173,10 @@ pub mod preprocessing;
 pub mod errors;
 pub mod reqrep;
 pub mod service;
-pub mod tensorflow;
 
 pub mod orkhon;
 
 pub use tract_core as tcore;
-pub use tract_tensorflow as ttensor;
 
 /// Prelude for Orkhon
 pub mod prelude {
@@ -183,14 +185,16 @@ pub mod prelude {
     pub use super::preprocessing::*;
 
     pub use super::tcore::*;
-    pub use super::tensorflow::*;
-    pub use super::ttensor::*;
 
     cfg_if::cfg_if! {
         if #[cfg(feature = "pymodel")] {
             pub use super::pooled::*;
         } else if #[cfg(feature = "onnxmodel")] {
             pub use super::onnx::*;
+            pub use super::ttensor::*;
+        } else if #[cfg(feature = "tfmodel")] {
+            pub use super::tensorflow::*;
+            pub use super::ttensor::*;
         }
     }
 

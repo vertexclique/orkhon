@@ -35,6 +35,7 @@ maintenance = { status = "actively-developed" }
 
 [features]
 default = []
+tfmodel = ["tract-tensorflow"]
 onnxmodel = ["tract-onnx"]
 pymodel = ["pyo3"]
 
@@ -47,9 +48,9 @@ lever = "0.1.1-alpha.11"
 
 # Backend dependencies
 pyo3 = { version = "0.12", optional = true }
-tract-core = "0.11"
-tract-tensorflow = { version = "0.11", features = ["conform"] }
-tract-onnx = { version = "0.11", optional = true }
+tract-core = "0.12"
+tract-tensorflow = { version = "0.12", features = ["conform"], optional = true }
+tract-onnx = { version = "0.12", optional = true }
 smallvec = "1.4"
 futures-util = "0.3"
 async-trait = "0.1"
