@@ -34,7 +34,7 @@ travis-ci = { repository = "vertexclique/orkhon", branch = "master" }
 maintenance = { status = "actively-developed" }
 
 [features]
-default = ["onnxmodel"]
+default = []
 tfmodel = ["tract-tensorflow"]
 onnxmodel = ["tract-onnx"]
 pymodel = ["pyo3"]
