@@ -5,7 +5,6 @@ use crate::config::OrkhonConfig;
 use crate::errors::*;
 use crate::reqrep::{ORequest, OResponse, TFRequest, TFResponse};
 use crate::service::{Service, TensorflowAsyncService};
-use crate::tensorflow::TFModel;
 use std::collections::HashMap;
 
 use log::*;
@@ -28,6 +27,7 @@ cfg_if::cfg_if! {
 #[derive(Clone)]
 pub struct Orkhon {
     config: OrkhonConfig,
+    #[cfg(feature = "tfmodel")]
     tf_services: HashMap<String, TFModel>,
     #[cfg(feature = "pymodel")]
     py_services: HashMap<String, PooledModel>,
@@ -39,6 +39,7 @@ impl Default for Orkhon {
     fn default() -> Self {
         Self {
             config: OrkhonConfig::default(),
+            #[cfg(feature = "tfmodel")]
             tf_services: HashMap::<String, TFModel>::new(),
             #[cfg(feature = "pymodel")]
             py_services: HashMap::<String, PooledModel>::new(),
@@ -60,41 +61,47 @@ impl Orkhon {
         self
     }
 
-    pub fn tensorflow<T>(mut self, model_name: T, model_file: PathBuf) -> Self
-    where
-        T: AsRef<str>,
-    {
-        let model_spec = TFModel::new(self.config.clone())
-            .with_name(model_name.as_ref().to_owned())
-            .with_model_file(model_file);
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "tfmodel")] {
+            use crate::tensorflow::TFModel;
 
-        self.tf_services
-            .insert(model_name.as_ref().to_owned(), model_spec);
+            pub fn tensorflow<T>(mut self, model_name: T, model_file: PathBuf) -> Self
+            where
+                T: AsRef<str>,
+            {
+                let model_spec = TFModel::new(self.config.clone())
+                    .with_name(model_name.as_ref().to_owned())
+                    .with_model_file(model_file);
 
-        self
-    }
+                self.tf_services
+                    .insert(model_name.as_ref().to_owned(), model_spec);
 
-    pub fn tensorflow_request(
-        &self,
-        model_name: &str,
-        request: ORequest<TFRequest>,
-    ) -> Result<OResponse<TFResponse>> {
-        if let Some(modelbox) = self.tf_services.get(model_name) {
-            modelbox.process(request)
-        } else {
-            Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
-        }
-    }
+                self
+            }
 
-    pub async fn tensorflow_request_async(
-        &self,
-        model_name: &str,
-        request: ORequest<TFRequest>,
-    ) -> Result<OResponse<TFResponse>> {
-        if let Some(modelbox) = self.tf_services.get(model_name) {
-            modelbox.async_process(request).await
-        } else {
-            Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+            pub fn tensorflow_request(
+                &self,
+                model_name: &str,
+                request: ORequest<TFRequest>,
+            ) -> Result<OResponse<TFResponse>> {
+                if let Some(modelbox) = self.tf_services.get(model_name) {
+                    modelbox.process(request)
+                } else {
+                    Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+                }
+            }
+
+            pub async fn tensorflow_request_async(
+                &self,
+                model_name: &str,
+                request: ORequest<TFRequest>,
+            ) -> Result<OResponse<TFResponse>> {
+                if let Some(modelbox) = self.tf_services.get(model_name) {
+                    modelbox.async_process(request).await
+                } else {
+                    Err(OrkhonError::ModelNotFound("Can't find model.".to_string()))
+                }
+            }
         }
     }
 
@@ -111,12 +118,12 @@ impl Orkhon {
                     warn!("Loading ONNX model :: {}", model_name);
                     model_service.load().unwrap();
                 }
+            } else if #[cfg(feature = "tfmodel")] {
+                for (model_name, model_service) in &mut self.tf_services {
+                    warn!("Loading Tensorflow model :: {}", model_name);
+                    model_service.load().unwrap();
+                }
             }
-        }
-
-        for (model_name, model_service) in &mut self.tf_services {
-            warn!("Loading Tensorflow model :: {}", model_name);
-            model_service.load().unwrap();
         }
 
         self
