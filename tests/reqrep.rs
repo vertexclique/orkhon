@@ -6,6 +6,7 @@ use rand::*;
 use std::path::PathBuf;
 
 #[test]
+#[cfg(feature = "tfmodel")]
 fn test_sync_request_for_tensorflow_model() {
     use orkhon::reqrep::*;
 
@@ -14,7 +15,7 @@ fn test_sync_request_for_tensorflow_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_tf_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .tensorflow(
             "model_which_will_be_tested",
@@ -46,7 +47,7 @@ fn test_sync_request_for_onnx_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_onnx_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "model_which_will_be_tested",
@@ -68,6 +69,7 @@ fn test_sync_request_for_onnx_model() {
 }
 
 #[test]
+#[cfg(feature = "tfmodel")]
 fn test_async_request_for_tensorflow_model() {
     use orkhon::reqrep::*;
 
@@ -76,7 +78,7 @@ fn test_async_request_for_tensorflow_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_tf_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .tensorflow(
             "model_which_will_be_tested",
@@ -112,7 +114,7 @@ fn test_async_request_for_onnx_model() {
     let o = Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_onnx_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "model_which_will_be_tested",

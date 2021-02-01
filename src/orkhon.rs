@@ -21,6 +21,8 @@ cfg_if::cfg_if! {
         use crate::onnx::ONNXModel;
         use crate::service::ONNXAsyncService;
         use crate::reqrep::{ONNXRequest, ONNXResponse};
+    } else if #[cfg(feature = "tfmodel")] {
+        use crate::tensorflow::TFModel;
     }
 }
 
@@ -63,8 +65,6 @@ impl Orkhon {
 
     cfg_if::cfg_if! {
         if #[cfg(feature = "tfmodel")] {
-            use crate::tensorflow::TFModel;
-
             pub fn tensorflow<T>(mut self, model_name: T, model_file: PathBuf) -> Self
             where
                 T: AsRef<str>,

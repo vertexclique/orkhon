@@ -30,19 +30,28 @@ jobs:
           toolchain: ${{ matrix.version }}-${{ matrix.toolchain }}
           default: true
 
-      - name: Run checks
-        if: matrix.version == 'stable'
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --all --bins --examples --tests
+# Enable back again when examples are under their specific projects
+#      - name: Run checks
+#        if: matrix.version == 'stable'
+#        uses: actions-rs/cargo@v1
+#        with:
+#          command: check
+#          args: --all --bins --examples --tests
 
-      - name: Run tests
+      - name: Run ONNX tests
         if: matrix.version == 'stable'
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all
+          args: --tests --lib --features onnxmodel
+
+      - name: Run Tensorflow tests
+        if: matrix.version == 'stable'
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --tests --lib --features tfmodel
+
 
   check_fmt_and_docs:
     name: Checking docs

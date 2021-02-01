@@ -22,6 +22,7 @@ fn pass_config_to_orkhon() {
 }
 
 #[test]
+#[cfg(feature = "tfmodel")]
 fn load_tf_model() {
     init();
     Orkhon::new().config(OrkhonConfig::new()).tensorflow(
@@ -31,6 +32,7 @@ fn load_tf_model() {
 }
 
 #[test]
+#[cfg(feature = "tfmodel")]
 fn load_configured_tf_model() {
     init();
     Orkhon::new().config(OrkhonConfig::new()).tensorflow(
@@ -40,6 +42,7 @@ fn load_configured_tf_model() {
 }
 
 #[test]
+#[cfg(feature = "tfmodel")]
 #[ignore = "Needs a model to test"]
 fn build_auto_input_inferred_tf_model() {
     init();
@@ -55,6 +58,7 @@ fn build_auto_input_inferred_tf_model() {
 }
 
 #[test]
+#[cfg(feature = "tfmodel")]
 fn build_manual_input_tf_model() {
     init();
     // If you want to infer input tensor shapes you need to use the saved model in directory coming out of `model.save()`.
@@ -62,7 +66,7 @@ fn build_manual_input_tf_model() {
     Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_tf_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .tensorflow(
             "manual_input_infer",
@@ -80,7 +84,7 @@ fn build_manual_input_onnx_model() {
     Orkhon::new()
         .config(
             OrkhonConfig::new()
-                .with_default_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
+                .with_default_onnx_input_fact_shape(InferenceFact::dt_shape(f32::datum_type(), tvec![10, 100])),
         )
         .onnx(
             "onnx_model",
